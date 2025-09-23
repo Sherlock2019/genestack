@@ -42,7 +42,6 @@ and largely deployed with Helm+Kustomize against the K8s API (v1.28 and up).
 | OpenStack  | Masakari (Helm)       | Optional |
 | OpenStack  | Cloudkitty (Helm)     | Optional |
 | OpenStack  | Blazar (Helm)         | Optional |
-| OpenStack  | Freezer (Helm)        | Optional |
 | OpenStack  | metal3.io             | Planned  |
 | OpenStack  | PostgreSQL (Operator) | Included |
 | OpenStack  | Consul                | Planned  |
