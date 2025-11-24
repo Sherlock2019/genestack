@@ -80,7 +80,7 @@ automatic insights into the Genestack platform.
 
 <!-- INTELLIGENCE_DASHBOARD_START -->
 <p align="center">
-  <img src="docs/assets/intel_dashboard_preview.png?ts=20251124T124146Z" alt="Genestack Intelligence Dashboard" width="100%">
+  <img src="docs/assets/intel_dashboard_preview.png?ts=20251124T124752Z" alt="Genestack Intelligence Dashboard" width="100%">
 </p>
 <!-- INTELLIGENCE_DASHBOARD_END -->
 
