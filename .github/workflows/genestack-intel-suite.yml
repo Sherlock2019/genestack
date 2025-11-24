@@ -1,0 +1,31 @@
+name: Genestack Intelligence Suite
+
+on:
+  push:
+  pull_request:
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  intel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.x"
+
+      - name: Install dependencies
+        run: pip install matplotlib pandas streamlit slack_sdk requests
+
+      - name: Run intelligence suite
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
+        run: |
+          python3 genestack-intelligence/drift/detect_drift.py
+          python3 genestack-intelligence/heatmap/contributor_heatmap.py
+          python3 genestack-intelligence/notify/slack_notify.py || true
+          python3 genestack-intelligence/notify/teams_notify.py || true
