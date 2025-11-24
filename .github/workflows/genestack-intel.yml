@@ -1,0 +1,41 @@
+name: Genestack Intelligence Agent
+
+on:
+  push:
+    branches:
+      - main
+      - "**"     # any branch
+  pull_request:
+    branches:
+      - "**"     # any PR source branch
+  workflow_dispatch:
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.x"
+
+    - name: Install dependencies
+      run: |
+        pip install markdown requests python-docx
+
+    - name: Run Genestack Intelligence Agent
+      run: |
+        python genestack-intelligence/scripts/genestack_insights.py
+
+    - name: Commit updates
+      run: |
+        git config user.name "Genestack Intel Bot"
+        git config user.email "actions@github.com"
+        git add docs/community-insights.md
+        git add reports/*
+        git commit -m "chore: auto-update insights" || true
+        git push
