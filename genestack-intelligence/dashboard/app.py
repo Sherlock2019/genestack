@@ -316,19 +316,102 @@ st.markdown(
         div[data-testid="stMetricValue"] {{
             color: {theme['accent']} !important;
         }}
+        /* macOS-inspired colorful table styling */
         table {{
-            background-color: {theme['card']} !important;
+            background: linear-gradient(135deg, {theme['card']} 0%, {theme['card']} 100%) !important;
             color: {theme['text']} !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
         }}
         th {{
-            background-color: {theme['accent']} !important;
-            color: #fff !important;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            padding: 12px 16px !important;
+            border: none !important;
+            position: relative !important;
+        }}
+        th:first-child {{
+            border-top-left-radius: 12px !important;
+        }}
+        th:last-child {{
+            border-top-right-radius: 12px !important;
         }}
         td {{
             color: {theme['text']} !important;
+            padding: 10px 16px !important;
+            border-bottom: 1px solid rgba(102, 126, 234, 0.1) !important;
+            transition: all 0.2s ease !important;
+        }}
+        tr:nth-child(even) td {{
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%) !important;
+        }}
+        tr:nth-child(odd) td {{
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.03) 0%, rgba(102, 126, 234, 0.03) 100%) !important;
+        }}
+        tr:hover td {{
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%) !important;
+            transform: scale(1.01) !important;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2) !important;
+        }}
+        tr:last-child td:first-child {{
+            border-bottom-left-radius: 12px !important;
+        }}
+        tr:last-child td:last-child {{
+            border-bottom-right-radius: 12px !important;
         }}
         .stDataFrame {{
-            background-color: {theme['card']} !important;
+            background: linear-gradient(135deg, {theme['card']} 0%, {theme['card']} 100%) !important;
+            border-radius: 12px !important;
+            padding: 8px !important;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        }}
+        /* Additional macOS-style enhancements */
+        [data-testid="stDataFrame"] {{
+            border-radius: 12px !important;
+            overflow: hidden !important;
+        }}
+        [data-testid="stDataFrame"] table {{
+            border-radius: 12px !important;
+        }}
+        [data-testid="stDataFrame"] th {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }}
+        [data-testid="stDataFrame"] tr:nth-child(even) {{
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%) !important;
+        }}
+        [data-testid="stDataFrame"] tr:nth-child(odd) {{
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.03) 0%, rgba(102, 126, 234, 0.03) 100%) !important;
+        }}
+        [data-testid="stDataFrame"] tr:hover {{
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%) !important;
+        }}
+        [data-testid="stDataEditor"] {{
+            border-radius: 12px !important;
+            overflow: hidden !important;
+        }}
+        [data-testid="stDataEditor"] table {{
+            border-radius: 12px !important;
+        }}
+        [data-testid="stDataEditor"] th {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+        }}
+        [data-testid="stDataEditor"] tr:nth-child(even) {{
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%) !important;
+        }}
+        [data-testid="stDataEditor"] tr:nth-child(odd) {{
+            background: linear-gradient(135deg, rgba(240, 147, 251, 0.03) 0%, rgba(102, 126, 234, 0.03) 100%) !important;
+        }}
+        [data-testid="stDataEditor"] tr:hover {{
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.15) 0%, rgba(118, 75, 162, 0.15) 100%) !important;
         }}
         /* Section titles - neon blue in dark mode, IBM blue in light mode (no glow) */
         h1, h2, h3, h4, h5, h6 {{
@@ -346,7 +429,8 @@ st.markdown(
 # Header with theme switcher
 col_title, col_theme = st.columns([4, 1])
 with col_title:
-    st.title("🧬 Git-Dash-IntAIL")
+    # st.title("🧬 Git-Dash-IntAIL")
+    st.title("🧬 Genestack-dash-INTAIL")
     st.markdown("### Real-Time Repository Intelligence • Contributors • PR Insights • Drift Detection")
 with col_theme:
     st.markdown("<br>", unsafe_allow_html=True)  # Spacing
