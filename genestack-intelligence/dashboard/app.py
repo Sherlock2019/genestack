@@ -5,6 +5,34 @@ from typing import Any
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import sys
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+try:
+    from version_inventory import VersionInventory
+    VERSION_INVENTORY_AVAILABLE = True
+except ImportError:
+    VERSION_INVENTORY_AVAILABLE = False
+
+try:
+    from openstack_compatibility import OpenStackCompatibilityAnalyzer
+    COMPATIBILITY_ANALYZER_AVAILABLE = True
+except ImportError:
+    COMPATIBILITY_ANALYZER_AVAILABLE = False
+
+try:
+    from openstack_repo_scanner import OpenStackRepoScanner
+    REPO_SCANNER_AVAILABLE = True
+except ImportError:
+    REPO_SCANNER_AVAILABLE = False
+
+try:
+    from openstack_github_version_resolver import OpenStackGitHubVersionResolver
+    GITHUB_RESOLVER_AVAILABLE = True
+except ImportError:
+    GITHUB_RESOLVER_AVAILABLE = False
 
 GITHUB_GREEN_PALETTE = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]
 
@@ -52,7 +80,7 @@ def wrap_text(value: Any, width: int = 80) -> Any:
     return value
 
 def wrap_dataframe_text(df: pd.DataFrame, width: int = 80) -> pd.DataFrame:
-    return df.applymap(lambda val: wrap_text(val, width=width))
+    return df.map(lambda val: wrap_text(val, width=width))
 
 st.title("🧬 Genestack Intelligence Dashboard")
 st.markdown("### Real-Time Repository Intelligence • Contributors • PR Insights • Drift Detection")
@@ -303,6 +331,754 @@ ax.pie(
 )
 ax.axis('equal')
 st.pyplot(fig)
+
+# ---------------------------------------------------
+# Complete Component Version Inventory (Replaces OpenStack Component Versions)
+# ---------------------------------------------------
+st.markdown("## 📦 Complete Component Version Inventory")
+
+# Initialize session state for scan
+if 'run_scan' not in st.session_state:
+    st.session_state['run_scan'] = False
+
+# Check for existing report first
+report_dir = Path("reports") / datetime.now().strftime("%Y-%m-%d")
+inventory_file = report_dir / "component-inventory.md"
+inventory_csv = report_dir / "component-inventory.csv"
+
+# Load existing inventory if available
+inventory_loaded = False
+inv_df = None
+
+if inventory_csv.exists():
+    try:
+        inv_df = pd.read_csv(inventory_csv)
+        # Ensure Comments column exists
+        if 'Comments' not in inv_df.columns:
+            inv_df['Comments'] = ''
+        inventory_loaded = True
+        st.success(f"📄 Loaded existing inventory: {len(inv_df)} components found")
+    except Exception as e:
+        pass
+
+if VERSION_INVENTORY_AVAILABLE:
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown("### Scan Repository for All Component Versions")
+        st.caption("Scans Helm charts, Kustomize, containers, OpenStack services, Python packages, Ansible roles, CI/CD workflows, and more.")
+    with col2:
+        if st.button("🔄 Run New Scan", type="primary"):
+            st.session_state['run_scan'] = True
+    
+    if st.session_state.get('run_scan', False):
+        with st.spinner("Scanning repository... This may take a few minutes."):
+            try:
+                repo_path = os.getcwd()
+                scanner = VersionInventory(repo_path=repo_path)
+                inventory = scanner.scan_all()
+                
+                if inventory:
+                    # Convert to DataFrame
+                    inv_df = pd.DataFrame(inventory)
+                    inventory_loaded = True
+                    st.session_state['run_scan'] = False
+                    st.success(f"✅ Scan complete! Found {len(inv_df)} components.")
+                    
+                    # Auto-save to reports
+                    report_dir.mkdir(parents=True, exist_ok=True)
+                    scanner.export_to_markdown(report_dir / "component-inventory.md")
+                    scanner.export_to_csv(report_dir / "component-inventory.csv")
+            except Exception as e:
+                st.error(f"Error scanning repository: {str(e)}")
+                st.exception(e)
+                st.session_state['run_scan'] = False
+else:
+    st.warning("⚠️ Version inventory scanner not available. Ensure version_inventory.py is in the genestack-intelligence directory.")
+
+# Display inventory if available
+if inventory_loaded and inv_df is not None and not inv_df.empty:
+    # Filter for OpenStack services by default, but allow viewing all
+    st.markdown("### Component Inventory Table")
+    
+    # Determine default filter - prefer OpenStack services if available
+    all_types = sorted([str(x) for x in inv_df['Type'].unique() if pd.notna(x)])
+    has_openstack = any('openstack' in str(t).lower() for t in all_types)
+    default_types = ['openstack-service', 'openstack-service-image'] if has_openstack and 'openstack-service' in all_types else all_types
+    
+    # Display with filters
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        type_filter = st.multiselect(
+            "Filter by Type",
+            options=all_types,
+            default=default_types if isinstance(default_types, list) else all_types
+        )
+    with col2:
+        search_term = st.text_input("🔍 Search Component", "")
+    with col3:
+        show_all = st.checkbox("Show All Types", value=not has_openstack)
+        if show_all:
+            type_filter = all_types
+    
+    # Apply filters
+    filtered_df = inv_df[inv_df['Type'].isin(type_filter)]
+    if search_term:
+        filtered_df = filtered_df[
+            filtered_df['Component'].str.contains(search_term, case=False, na=False) |
+            filtered_df['Source Path'].str.contains(search_term, case=False, na=False) |
+            filtered_df['Notes'].astype(str).str.contains(search_term, case=False, na=False)
+        ]
+    
+    # Display table with editable Comments column
+    if not filtered_df.empty:
+        # Ensure Comments column exists
+        if 'Comments' not in filtered_df.columns:
+            filtered_df['Comments'] = ''
+        if 'Comments' not in inv_df.columns:
+            inv_df['Comments'] = ''
+        
+        # Use data_editor for editable Comments column
+        edited_df = st.data_editor(
+            filtered_df,
+            use_container_width=True,
+            hide_index=True,
+            height=600,
+            column_config={
+                "Comments": st.column_config.TextColumn(
+                    "Comments",
+                    help="Add your comments here",
+                    width="large"
+                )
+            },
+            disabled=["Component", "Type", "Version in Repo", "OpenStack Software Version", "Latest Upstream Version", 
+                     "OpenStack Release Name", "Compatibility", "Recommended Upstream", "Source Path", "Notes"],
+            key="inventory_editor"
+        )
+        
+        # Save button for Comments
+        if st.button("💾 Save Comments", key="save_inventory_comments"):
+            # Update the full dataframe with edited comments
+            if 'Comments' in edited_df.columns:
+                # Map edited comments back to full inventory
+                for idx, row in edited_df.iterrows():
+                    # Find matching row in inv_df
+                    mask = (inv_df['Component'] == row['Component']) & (inv_df['Type'] == row['Type'])
+                    if mask.any():
+                        inv_df.loc[mask, 'Comments'] = row.get('Comments', '')
+                
+                # Save to CSV
+                csv_path = report_dir / "component-inventory.csv"
+                inv_df.to_csv(csv_path, index=False)
+                st.success("✅ Comments saved successfully!")
+        
+        # Statistics
+        st.markdown("### 📊 Inventory Statistics")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("Total Components", len(inv_df))
+        with col2:
+            st.metric("Component Types", len(inv_df['Type'].unique()))
+        with col3:
+            outdated = len(inv_df[inv_df['Latest Upstream Version'].notna() & 
+                                   (inv_df['Latest Upstream Version'] != inv_df['Version in Repo']) &
+                                   (~inv_df['Latest Upstream Version'].astype(str).str.contains('N/A', case=False, na=False))])
+            st.metric("Potentially Outdated", outdated)
+        with col4:
+            with_latest = len(inv_df[inv_df['Latest Upstream Version'].notna() & 
+                                       (~inv_df['Latest Upstream Version'].astype(str).str.contains('N/A', case=False, na=False))])
+            st.metric("With Latest Info", with_latest)
+        
+        # Export options
+        st.markdown("### 💾 Export Options")
+        col1, col2 = st.columns(2)
+        with col1:
+            csv = inv_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Full CSV",
+                data=csv,
+                file_name=f"component-inventory-{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv"
+            )
+        with col2:
+            filtered_csv = filtered_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Filtered CSV",
+                data=filtered_csv,
+                file_name=f"component-inventory-filtered-{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv"
+            )
+    else:
+        st.warning("No components match the current filters.")
+elif not inventory_loaded:
+    st.info("💡 Click '🔄 Run New Scan' to generate a complete component version inventory, or ensure a previous scan exists in the reports directory.")
+
+# ---------------------------------------------------
+# OpenStack Repository Scanner (Comprehensive)
+# ---------------------------------------------------
+st.markdown("## 🔍 OpenStack Repository Component Scanner")
+
+# Initialize session state
+if 'run_repo_scan' not in st.session_state:
+    st.session_state['run_repo_scan'] = False
+if 'scrape_releases' not in st.session_state:
+    st.session_state['scrape_releases'] = False
+
+# Check for existing reports
+repo_inventory_csv = report_dir / "openstack_repo_compatibility.csv"
+repo_inventory_json = report_dir / "openstack_repo_inventory.json"
+recommended_stack_json = report_dir / "openstack_recommended_stack.json"
+
+repo_scan_loaded = False
+repo_table_df = None
+recommended_stack = None
+
+if repo_inventory_csv.exists():
+    try:
+        repo_table_df = pd.read_csv(repo_inventory_csv)
+        # Ensure Comments column exists
+        if 'Comments' not in repo_table_df.columns:
+            repo_table_df['Comments'] = ''
+        repo_scan_loaded = True
+        st.success(f"📄 Loaded existing repository scan: {len(repo_table_df)} components")
+    except Exception as e:
+        pass
+
+if recommended_stack_json.exists():
+    try:
+        with open(recommended_stack_json, 'r') as f:
+            recommended_stack = json.load(f)
+    except Exception as e:
+        pass
+
+if REPO_SCANNER_AVAILABLE:
+    col1, col2, col3 = st.columns([2, 1, 1])
+    with col1:
+        st.markdown("### Scan Repository for OpenStack Components")
+        st.caption("Recursively scans ALL files for OpenStack component versions. NO CLI required - repository-only analysis.")
+    with col2:
+        scrape_check = st.checkbox("Scrape OpenStack Releases", value=False, help="Fetch latest release data from releases.openstack.org")
+    with col3:
+        if st.button("🔄 Run Repository Scan", type="primary"):
+            st.session_state['run_repo_scan'] = True
+            st.session_state['scrape_releases'] = scrape_check
+    
+    if st.session_state.get('run_repo_scan', False):
+        with st.spinner("Scanning repository and analyzing compatibility... This may take a few minutes."):
+            try:
+                repo_path = os.getcwd()
+                scanner = OpenStackRepoScanner(repo_path=repo_path)
+                
+                # Scrape if requested
+                if st.session_state.get('scrape_releases', False):
+                    with st.spinner("Scraping OpenStack release data..."):
+                        scanner.scrape_openstack_releases()
+                
+                # Scan repository
+                components = scanner.scan_repository()
+                
+                # Analyze compatibility
+                table = scanner.analyze_compatibility()
+                
+                if table:
+                    repo_table_df = pd.DataFrame(table)
+                    repo_scan_loaded = True
+                    st.session_state['run_repo_scan'] = False
+                    st.success(f"✅ Scan complete! Found {len(components)} component versions, {len(table)} compatibility checks.")
+                    
+                    # Auto-save to reports
+                    report_dir.mkdir(parents=True, exist_ok=True)
+                    scanner.export_reports(table, report_dir)
+                    
+                    # Load recommended stack
+                    if recommended_stack_json.exists():
+                        with open(recommended_stack_json, 'r') as f:
+                            recommended_stack = json.load(f)
+            except Exception as e:
+                st.error(f"Error scanning repository: {str(e)}")
+                st.exception(e)
+                st.session_state['run_repo_scan'] = False
+else:
+    st.warning("⚠️ Repository scanner not available. Ensure openstack_repo_scanner.py is in the genestack-intelligence directory.")
+
+# Display recommended stack if available
+if recommended_stack:
+    st.markdown("### 📊 Recommended Stack")
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        st.metric("Recommended Release", recommended_stack.get('recommended_release_name', 'Unknown'))
+    with col2:
+        st.metric("Components", recommended_stack.get('components_count', 0))
+    with col3:
+        st.metric("Issues Found", recommended_stack.get('issues_found', 0))
+    with col4:
+        releases = len(recommended_stack.get('release_distribution', {}))
+        st.metric("Release Series", releases)
+    
+    st.info(f"💡 **Recommendation**: {recommended_stack.get('recommendation', 'N/A')}")
+
+# Display compatibility table if available
+if repo_scan_loaded and repo_table_df is not None and not repo_table_df.empty:
+    st.markdown("### Component Compatibility Table")
+    
+    # Display with filters
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        # Filter out NaN and convert to string for sorting
+        unique_issues = [str(x) for x in repo_table_df['Compatibility Issues'].unique() if pd.notna(x)]
+        issue_filter = st.multiselect(
+            "Filter by Issues",
+            options=sorted(unique_issues),
+            default=sorted(unique_issues)
+        )
+    with col2:
+        # Filter out NaN and convert to string for sorting
+        unique_releases = [str(x) for x in repo_table_df['Mapped Release'].unique() if pd.notna(x)]
+        release_filter = st.multiselect(
+            "Filter by Release",
+            options=sorted(unique_releases),
+            default=sorted(unique_releases)
+        )
+    with col3:
+        search_term = st.text_input("🔍 Search Component", "", key="repo_search")
+    
+    # Apply filters - handle NaN values
+    filtered_repo_df = repo_table_df[
+        (repo_table_df['Compatibility Issues'].astype(str).isin(issue_filter)) &
+        (repo_table_df['Mapped Release'].astype(str).isin(release_filter))
+    ]
+    if search_term:
+        filtered_repo_df = filtered_repo_df[
+            filtered_repo_df['Component'].str.contains(search_term, case=False, na=False) |
+            filtered_repo_df['File'].str.contains(search_term, case=False, na=False) |
+            filtered_repo_df['Compatibility Issues'].astype(str).str.contains(search_term, case=False, na=False)
+        ]
+    
+    # Color code by issues
+    def highlight_issues(row):
+        issues = str(row['Compatibility Issues']).upper()
+        if 'ERROR' in issues or 'MISMATCH' in issues or 'EOL' in issues:
+            return ['background-color: #ffcccc'] * len(row)  # Red
+        elif 'WARNING' in issues or 'MIXED' in issues:
+            return ['background-color: #fff4cc'] * len(row)  # Yellow
+        elif issues == 'OK':
+            return ['background-color: #ccffcc'] * len(row)  # Green
+        return [''] * len(row)
+    
+    # Display table with editable Comments column
+    if not filtered_repo_df.empty:
+        # Ensure Comments column exists
+        if 'Comments' not in filtered_repo_df.columns:
+            filtered_repo_df['Comments'] = ''
+        
+        # Use data_editor for editable Comments column
+        edited_df = st.data_editor(
+            filtered_repo_df,
+            use_container_width=True,
+            hide_index=True,
+            height=600,
+            column_config={
+                "Comments": st.column_config.TextColumn(
+                    "Comments",
+                    help="Add your comments here",
+                    width="large"
+                )
+            },
+            disabled=["Component", "Version Detected", "Real Version", "File", "Mapped Release", "Compatibility Issues", "Recommended Stack"],
+            key="repo_compatibility_editor"
+        )
+        
+        # Save button for Comments
+        if st.button("💾 Save Comments", key="save_repo_comments"):
+            # Update the full dataframe with edited comments
+            if 'Comments' in edited_df.columns:
+                for idx, row in edited_df.iterrows():
+                    if idx in repo_table_df.index:
+                        repo_table_df.at[idx, 'Comments'] = row.get('Comments', '')
+                
+                # Save to CSV
+                csv_path = report_dir / "openstack_repo_compatibility.csv"
+                repo_table_df.to_csv(csv_path, index=False)
+                st.success("✅ Comments saved successfully!")
+        
+        # Statistics
+        st.markdown("### 📊 Scan Statistics")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            ok_count = len(repo_table_df[repo_table_df['Compatibility Issues'].astype(str) == 'OK'])
+            st.metric("✅ OK", ok_count)
+        with col2:
+            warning_count = len(repo_table_df[repo_table_df['Compatibility Issues'].astype(str).str.contains('MIXED|WARNING', case=False, na=False)])
+            st.metric("⚠️ Warnings", warning_count)
+        with col3:
+            error_count = len(repo_table_df[repo_table_df['Compatibility Issues'].astype(str).str.contains('ERROR|MISMATCH|EOL', case=False, na=False)])
+            st.metric("❌ Errors", error_count)
+        with col4:
+            st.metric("Total Components", len(repo_table_df))
+        
+        # Show summary
+        if error_count > 0:
+            st.error(f"🚨 **{error_count} compatibility error(s) found!** Review the table above for details.")
+        if warning_count > 0:
+            st.warning(f"⚠️ **{warning_count} compatibility warning(s) found.** Review recommended.")
+        if error_count == 0 and warning_count == 0:
+            st.success("✅ **All compatibility checks passed!**")
+        
+        # Export options
+        st.markdown("### 💾 Export Options")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            csv_data = repo_table_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download CSV",
+                data=csv_data,
+                file_name=f"openstack-repo-compat-{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv"
+            )
+        with col2:
+            if repo_inventory_json.exists():
+                with open(repo_inventory_json, 'r') as f:
+                    json_data = f.read()
+                st.download_button(
+                    label="📥 Download JSON",
+                    data=json_data,
+                    file_name=f"openstack-repo-inventory-{datetime.now().strftime('%Y%m%d')}.json",
+                    mime="application/json"
+                )
+        with col3:
+            filtered_csv = filtered_repo_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Filtered CSV",
+                data=filtered_csv,
+                file_name=f"openstack-repo-filtered-{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv"
+            )
+    else:
+        st.warning("No components match the current filters.")
+elif not repo_scan_loaded:
+    st.info("💡 Click '🔄 Run Repository Scan' to scan the repository for all OpenStack component versions and compatibility issues.")
+
+# ---------------------------------------------------
+# GitHub Version Resolution (Resolve Real Versions from GitHub)
+# ---------------------------------------------------
+st.markdown("## 🔗 GitHub Version Resolution")
+
+# Initialize session state
+if 'resolve_github_versions' not in st.session_state:
+    st.session_state['resolve_github_versions'] = False
+
+# Check for existing resolved versions
+github_resolved_csv = report_dir / "openstack_github_resolved_versions.csv"
+github_resolved_json = report_dir / "openstack_github_resolved_versions.json"
+
+github_resolved_loaded = False
+github_resolved_df = None
+
+if github_resolved_csv.exists():
+    try:
+        github_resolved_df = pd.read_csv(github_resolved_csv)
+        github_resolved_loaded = True
+        st.success(f"📄 Loaded existing GitHub-resolved versions: {len(github_resolved_df)} components")
+    except Exception as e:
+        pass
+
+if GITHUB_RESOLVER_AVAILABLE:
+    st.markdown("### Resolve Real Versions from GitHub")
+    st.caption("Extracts commit SHAs from Component Inventory Table, queries GitHub API to find actual tags/versions, and determines release train compatibility. Works without authentication (60 requests/hour limit).")
+    
+    # Check if Component Inventory is available
+    if inventory_loaded and inv_df is not None and not inv_df.empty:
+        if st.button("🔗 Resolve from GitHub", type="primary"):
+            st.session_state['resolve_github_versions'] = True
+    else:
+        st.info("⚠️ Component Inventory Table required. Please run '🔄 Run New Scan' in the Component Version Inventory section first.")
+    
+    if st.session_state.get('resolve_github_versions', False):
+        with st.spinner("Resolving versions from GitHub API... This may take several minutes due to rate limits."):
+            try:
+                repo_path = os.getcwd()
+                
+                # Use Component Inventory Table
+                if inventory_loaded and inv_df is not None and not inv_df.empty:
+                    # Convert DataFrame to list of dicts
+                    inventory_table = inv_df.to_dict('records')
+                    
+                    # Resolve from GitHub (no token - uses public API)
+                    resolver = OpenStackGitHubVersionResolver(repo_path=repo_path, github_token=None)
+                    resolved = resolver.resolve_component_inventory(inventory_table)
+                    
+                    if resolved:
+                        # Convert to DataFrame with new columns
+                        github_resolved_df = pd.DataFrame(resolved)
+                        github_resolved_loaded = True
+                        st.session_state['resolve_github_versions'] = False
+                        st.success(f"✅ Resolved {len(resolved)} component versions from GitHub")
+                        
+                        # Auto-save
+                        report_dir.mkdir(parents=True, exist_ok=True)
+                        resolver.export_table(resolved, report_dir)
+                else:
+                    st.error("Component Inventory Table not available. Please run a scan first.")
+                    st.session_state['resolve_github_versions'] = False
+            except Exception as e:
+                st.error(f"Error resolving versions from GitHub: {str(e)}")
+                st.exception(e)
+                st.session_state['resolve_github_versions'] = False
+                if "rate limit" in str(e).lower() or "403" in str(e):
+                    st.warning("⚠️ GitHub API rate limit exceeded (60 requests/hour for unauthenticated). The resolver will retry with delays. For faster resolution, you can set GITHUB_TOKEN environment variable, but it's not required.")
+else:
+    if not GITHUB_RESOLVER_AVAILABLE:
+        st.warning("⚠️ GitHub version resolver not available. Ensure openstack_github_version_resolver.py is in the genestack-intelligence directory.")
+
+# Display resolved versions if available
+if github_resolved_loaded and github_resolved_df is not None and not github_resolved_df.empty:
+    st.markdown("### GitHub-Resolved Version Table")
+    
+    # Display with filters
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        status_filter = st.multiselect(
+            "Filter by Status",
+            options=sorted([str(x) for x in github_resolved_df['Compatibility Status'].unique() if pd.notna(x)]),
+            default=sorted([str(x) for x in github_resolved_df['Compatibility Status'].unique() if pd.notna(x)])
+        )
+        with col2:
+            train_filter = st.multiselect(
+                "Filter by Release Train",
+                options=sorted([str(x) for x in github_resolved_df['Release Train'].unique() if pd.notna(x) and str(x) != 'Unknown']),
+                default=sorted([str(x) for x in github_resolved_df['Release Train'].unique() if pd.notna(x) and str(x) != 'Unknown'])
+            )
+    with col3:
+        search_term = st.text_input("🔍 Search Component", "", key="github_search")
+    
+    # Apply filters
+    filtered_github_df = github_resolved_df[
+        (github_resolved_df['Compatibility Status'].astype(str).isin(status_filter)) &
+        (github_resolved_df['Release Train'].astype(str).isin(train_filter))
+    ]
+    if search_term:
+        filtered_github_df = filtered_github_df[
+            filtered_github_df['Component'].str.contains(search_term, case=False, na=False) |
+            filtered_github_df['Real OpenStack Version'].astype(str).str.contains(search_term, case=False, na=False) |
+            filtered_github_df['Version in Repo'].astype(str).str.contains(search_term, case=False, na=False)
+        ]
+    
+    # Display table with all new columns
+    if not filtered_github_df.empty:
+        # Select columns to display
+        display_columns = ['Component', 'Version in Repo', 'Real OpenStack Version', 
+                          'Release Train', 'Compatibility Status', 'Recommended Version',
+                          'GitHub Commit URL', 'GitHub Tag URL', 'Release Notes URL']
+        
+        # Filter to only show columns that exist
+        available_columns = [col for col in display_columns if col in filtered_github_df.columns]
+        display_df = filtered_github_df[available_columns]
+        
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            hide_index=True,
+            height=600
+        )
+        
+        # Statistics
+        st.markdown("### 📊 Resolution Statistics")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            compatible_count = len(github_resolved_df[github_resolved_df['Compatibility Status'].astype(str).str.contains('✔', na=False)])
+            st.metric("✔ Compatible", compatible_count)
+        with col2:
+            incompatible_count = len(github_resolved_df[github_resolved_df['Compatibility Status'].astype(str).str.contains('❌', na=False)])
+            st.metric("❌ Incompatible", incompatible_count)
+        with col3:
+            unique_trains = len([x for x in github_resolved_df['Release Train'].unique() if pd.notna(x) and str(x) != 'Unknown'])
+            st.metric("Release Trains", unique_trains)
+        with col4:
+            st.metric("Total Components", len(github_resolved_df))
+        
+        # Show summary
+        if incompatible_count > 0:
+            st.error(f"🚨 **{incompatible_count} incompatible component(s) found!** Review recommended versions.")
+        if compatible_count == len(github_resolved_df):
+            st.success("✅ **All components are compatible!**")
+        
+        # Export options
+        st.markdown("### 💾 Export Options")
+        col1, col2 = st.columns(2)
+        with col1:
+            csv_data = github_resolved_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download CSV",
+                data=csv_data,
+                file_name=f"openstack-github-resolved-{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv"
+            )
+        with col2:
+            if github_resolved_json.exists():
+                with open(github_resolved_json, 'r') as f:
+                    json_data = f.read()
+                st.download_button(
+                    label="📥 Download JSON",
+                    data=json_data,
+                    file_name=f"openstack-github-resolved-{datetime.now().strftime('%Y%m%d')}.json",
+                    mime="application/json"
+                )
+    else:
+        st.warning("No components match the current filters.")
+elif not github_resolved_loaded:
+    st.info("💡 Click '🔗 Resolve from GitHub' to query GitHub API for actual component versions and release trains. Works without authentication (public API, 60 requests/hour).")
+
+# ---------------------------------------------------
+# OpenStack Compatibility Analysis (Legacy)
+# ---------------------------------------------------
+st.markdown("## 🔍 OpenStack Compatibility Analysis (Detailed)")
+
+# Initialize session state
+if 'run_compat_analysis' not in st.session_state:
+    st.session_state['run_compat_analysis'] = False
+
+# Check for existing compatibility report
+compat_file = report_dir / "openstack-compat-table.md"
+compat_csv = report_dir / "openstack-compat-table.csv"
+
+compat_loaded = False
+compat_df = None
+
+if compat_csv.exists():
+    try:
+        compat_df = pd.read_csv(compat_csv)
+        compat_loaded = True
+        st.success(f"📄 Loaded existing compatibility analysis: {len(compat_df)} checks")
+    except Exception as e:
+        pass
+
+if COMPATIBILITY_ANALYZER_AVAILABLE:
+    col1, col2 = st.columns([3, 1])
+    with col1:
+        st.markdown("### Analyze OpenStack Component Compatibility")
+        st.caption("Checks release alignment, API microversions, container image alignment, Python library compatibility, and Kubernetes API compatibility.")
+    with col2:
+        if st.button("🔄 Run Compatibility Analysis", type="primary"):
+            st.session_state['run_compat_analysis'] = True
+    
+    if st.session_state.get('run_compat_analysis', False):
+        with st.spinner("Analyzing OpenStack compatibility... This may take a minute."):
+            try:
+                repo_path = os.getcwd()
+                analyzer = OpenStackCompatibilityAnalyzer(repo_path=repo_path)
+                compatibility_table = analyzer.analyze()
+                
+                if compatibility_table:
+                    compat_df = pd.DataFrame(compatibility_table)
+                    compat_loaded = True
+                    st.session_state['run_compat_analysis'] = False
+                    st.success(f"✅ Analysis complete! Found {len(compat_df)} compatibility checks.")
+                    
+                    # Auto-save to reports
+                    report_dir.mkdir(parents=True, exist_ok=True)
+                    analyzer.export_to_markdown(report_dir / "openstack-compat-table.md")
+                    analyzer.export_to_csv(report_dir / "openstack-compat-table.csv")
+            except Exception as e:
+                st.error(f"Error analyzing compatibility: {str(e)}")
+                st.exception(e)
+                st.session_state['run_compat_analysis'] = False
+else:
+    st.warning("⚠️ Compatibility analyzer not available. Ensure openstack_compatibility.py is in the genestack-intelligence directory.")
+
+# Display compatibility table if available
+if compat_loaded and compat_df is not None and not compat_df.empty:
+    st.markdown("### Compatibility Status Table")
+    
+    # Color code by status
+    def color_status(val):
+        if val == "OK":
+            return 'background-color: #ccffcc'  # Green
+        elif val == "WARNING":
+            return 'background-color: #fff4cc'  # Yellow
+        elif val == "ERROR":
+            return 'background-color: #ffcccc'  # Red
+        return ''
+    
+    # Apply styling
+    styled_compat_df = compat_df.style.applymap(color_status, subset=['Status'])
+    
+    # Display with filters
+    col1, col2 = st.columns(2)
+    with col1:
+        status_filter = st.multiselect(
+            "Filter by Status",
+            options=['OK', 'WARNING', 'ERROR'],
+            default=['ERROR', 'WARNING', 'OK']
+        )
+    with col2:
+        search_term = st.text_input("🔍 Search Component", "", key="compat_search")
+    
+    # Apply filters
+    filtered_compat_df = compat_df[compat_df['Status'].isin(status_filter)]
+    if search_term:
+        filtered_compat_df = filtered_compat_df[
+            filtered_compat_df['Component'].str.contains(search_term, case=False, na=False) |
+            filtered_compat_df['Notes'].astype(str).str.contains(search_term, case=False, na=False)
+        ]
+    
+    # Display table
+    if not filtered_compat_df.empty:
+        # Create styled version for display
+        display_df = filtered_compat_df.copy()
+        
+        st.dataframe(
+            display_df,
+            use_container_width=True,
+            hide_index=True,
+            height=600
+        )
+        
+        # Statistics
+        st.markdown("### 📊 Compatibility Statistics")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            ok_count = len(compat_df[compat_df['Status'] == 'OK'])
+            st.metric("✅ OK", ok_count, delta=None)
+        with col2:
+            warning_count = len(compat_df[compat_df['Status'] == 'WARNING'])
+            st.metric("⚠️ Warnings", warning_count, delta=None)
+        with col3:
+            error_count = len(compat_df[compat_df['Status'] == 'ERROR'])
+            st.metric("❌ Errors", error_count, delta=None)
+        with col4:
+            total_checks = len(compat_df)
+            st.metric("Total Checks", total_checks)
+        
+        # Show summary
+        if error_count > 0:
+            st.error(f"🚨 **{error_count} compatibility error(s) found!** Review the table above for details.")
+        if warning_count > 0:
+            st.warning(f"⚠️ **{warning_count} compatibility warning(s) found.** Review recommended.")
+        if error_count == 0 and warning_count == 0:
+            st.success("✅ **All compatibility checks passed!**")
+        
+        # Export options
+        st.markdown("### 💾 Export Options")
+        col1, col2 = st.columns(2)
+        with col1:
+            csv = compat_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Full CSV",
+                data=csv,
+                file_name=f"openstack-compat-{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv"
+            )
+        with col2:
+            filtered_csv = filtered_compat_df.to_csv(index=False)
+            st.download_button(
+                label="📥 Download Filtered CSV",
+                data=filtered_csv,
+                file_name=f"openstack-compat-filtered-{datetime.now().strftime('%Y%m%d')}.csv",
+                mime="text/csv"
+            )
+    else:
+        st.warning("No compatibility checks match the current filters.")
+elif not compat_loaded:
+    st.info("💡 Click '🔄 Run Compatibility Analysis' to analyze OpenStack component compatibility, or ensure a previous analysis exists in the reports directory.")
 
 # ---------------------------------------------------
 # Top 10 Modified Files per Branch (Surfaced near top for screenshot)

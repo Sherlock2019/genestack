@@ -1,0 +1,605 @@
+{
+  "scan_date": "2025-11-25T00:06:58.435375",
+  "repository_path": "/root/genestack",
+  "components": [
+    {
+      "component": "barbican",
+      "version_detected": "2024.2.208+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 3,
+      "version_context": "charts:\n  argocd: 11.0.0\n  barbican: 2024.2.208+13651f45-628a320c\n  blazar: 2025.1.3+95bf0bf6e\n  ceilometer: 2024.2.115+13651f45-628a320c\n  cinder: 2024.2.409+13651f45-628a320c\n  cloudkitty: 2025.1.2+ebb1488dc",
+      "raw_line": "barbican: 2024.2.208+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "blazar",
+      "version_detected": "2025.1.3+95bf0bf6e",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 4,
+      "version_context": "  argocd: 11.0.0\n  barbican: 2024.2.208+13651f45-628a320c\n  blazar: 2025.1.3+95bf0bf6e\n  ceilometer: 2024.2.115+13651f45-628a320c\n  cinder: 2024.2.409+13651f45-628a320c\n  cloudkitty: 2025.1.2+ebb1488dc\n  envoy: v1.5.3",
+      "raw_line": "blazar: 2025.1.3+95bf0bf6e",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "ceilometer",
+      "version_detected": "2024.2.115+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 5,
+      "version_context": "  barbican: 2024.2.208+13651f45-628a320c\n  blazar: 2025.1.3+95bf0bf6e\n  ceilometer: 2024.2.115+13651f45-628a320c\n  cinder: 2024.2.409+13651f45-628a320c\n  cloudkitty: 2025.1.2+ebb1488dc\n  envoy: v1.5.3\n  fluentbit: 2025.1.1+95bf0bf6e",
+      "raw_line": "ceilometer: 2024.2.115+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "cinder",
+      "version_detected": "2024.2.409+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 6,
+      "version_context": "  blazar: 2025.1.3+95bf0bf6e\n  ceilometer: 2024.2.115+13651f45-628a320c\n  cinder: 2024.2.409+13651f45-628a320c\n  cloudkitty: 2025.1.2+ebb1488dc\n  envoy: v1.5.3\n  fluentbit: 2025.1.1+95bf0bf6e\n  freezer: 2025.1.2+cdd5c6c55",
+      "raw_line": "cinder: 2024.2.409+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "cloudkitty",
+      "version_detected": "2025.1.2+ebb1488dc",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 7,
+      "version_context": "  ceilometer: 2024.2.115+13651f45-628a320c\n  cinder: 2024.2.409+13651f45-628a320c\n  cloudkitty: 2025.1.2+ebb1488dc\n  envoy: v1.5.3\n  fluentbit: 2025.1.1+95bf0bf6e\n  freezer: 2025.1.2+cdd5c6c55\n  glance: 2024.2.396+13651f45-628a320c",
+      "raw_line": "cloudkitty: 2025.1.2+ebb1488dc",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "freezer",
+      "version_detected": "2025.1.2+cdd5c6c55",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 10,
+      "version_context": "  envoy: v1.5.3\n  fluentbit: 2025.1.1+95bf0bf6e\n  freezer: 2025.1.2+cdd5c6c55\n  glance: 2024.2.396+13651f45-628a320c\n  gnocchi: 2024.2.52+22.15d38\n  grafana: 10.1.0\n  heat: 2024.2.294+13651f45-628a320c",
+      "raw_line": "freezer: 2025.1.2+cdd5c6c55",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "glance",
+      "version_detected": "2024.2.396+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 11,
+      "version_context": "  fluentbit: 2025.1.1+95bf0bf6e\n  freezer: 2025.1.2+cdd5c6c55\n  glance: 2024.2.396+13651f45-628a320c\n  gnocchi: 2024.2.52+22.15d38\n  grafana: 10.1.0\n  heat: 2024.2.294+13651f45-628a320c\n  horizon: 2024.2.264+13651f45-628a320c",
+      "raw_line": "glance: 2024.2.396+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "gnocchi",
+      "version_detected": "2024.2.52+22",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 12,
+      "version_context": "  freezer: 2025.1.2+cdd5c6c55\n  glance: 2024.2.396+13651f45-628a320c\n  gnocchi: 2024.2.52+22.15d38\n  grafana: 10.1.0\n  heat: 2024.2.294+13651f45-628a320c\n  horizon: 2024.2.264+13651f45-628a320c\n  ironic: 2024.2.121+13651f45-628a320c",
+      "raw_line": "gnocchi: 2024.2.52+22.15d38",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "heat",
+      "version_detected": "2024.2.294+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 14,
+      "version_context": "  gnocchi: 2024.2.52+22.15d38\n  grafana: 10.1.0\n  heat: 2024.2.294+13651f45-628a320c\n  horizon: 2024.2.264+13651f45-628a320c\n  ironic: 2024.2.121+13651f45-628a320c\n  keystone: 2024.2.386+13651f45-628a320c\n  kube-event-exporter: 3.6.3",
+      "raw_line": "heat: 2024.2.294+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "horizon",
+      "version_detected": "2024.2.264+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 15,
+      "version_context": "  grafana: 10.1.0\n  heat: 2024.2.294+13651f45-628a320c\n  horizon: 2024.2.264+13651f45-628a320c\n  ironic: 2024.2.121+13651f45-628a320c\n  keystone: 2024.2.386+13651f45-628a320c\n  kube-event-exporter: 3.6.3\n  kube-ovn: v1.14.11",
+      "raw_line": "horizon: 2024.2.264+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "ironic",
+      "version_detected": "2024.2.121+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 16,
+      "version_context": "  heat: 2024.2.294+13651f45-628a320c\n  horizon: 2024.2.264+13651f45-628a320c\n  ironic: 2024.2.121+13651f45-628a320c\n  keystone: 2024.2.386+13651f45-628a320c\n  kube-event-exporter: 3.6.3\n  kube-ovn: v1.14.11\n  libvirt: 2024.2.94+912f85d38",
+      "raw_line": "ironic: 2024.2.121+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "keystone",
+      "version_detected": "2024.2.386+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 17,
+      "version_context": "  horizon: 2024.2.264+13651f45-628a320c\n  ironic: 2024.2.121+13651f45-628a320c\n  keystone: 2024.2.386+13651f45-628a320c\n  kube-event-exporter: 3.6.3\n  kube-ovn: v1.14.11\n  libvirt: 2024.2.94+912f85d38\n  loki: 6.43.0",
+      "raw_line": "keystone: 2024.2.386+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "magnum",
+      "version_detected": "2024.2.157+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 23,
+      "version_context": "  loki: 6.43.0\n  longhorn: 1.9.2\n  magnum: 2024.2.157+13651f45-628a320c\n  mariadb-operator: 0.38.1\n  masakari: 2024.2.17+13651f45-628a320c\n  memcached: 8.1.1\n  metallb: v0.15.2",
+      "raw_line": "magnum: 2024.2.157+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "masakari",
+      "version_detected": "2024.2.17+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 25,
+      "version_context": "  magnum: 2024.2.157+13651f45-628a320c\n  mariadb-operator: 0.38.1\n  masakari: 2024.2.17+13651f45-628a320c\n  memcached: 8.1.1\n  metallb: v0.15.2\n  neutron: 2024.2.529+13651f45-628a320c\n  nova: 2024.2.555+13651f45-628a320c",
+      "raw_line": "masakari: 2024.2.17+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "neutron",
+      "version_detected": "2024.2.529+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 28,
+      "version_context": "  memcached: 8.1.1\n  metallb: v0.15.2\n  neutron: 2024.2.529+13651f45-628a320c\n  nova: 2024.2.555+13651f45-628a320c\n  octavia: 2025.1.15+b1e463122\n  placement: 2024.2.62+13651f45-628a320c\n  postgres-operator: 1.12.2",
+      "raw_line": "neutron: 2024.2.529+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "nova",
+      "version_detected": "2024.2.555+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 29,
+      "version_context": "  metallb: v0.15.2\n  neutron: 2024.2.529+13651f45-628a320c\n  nova: 2024.2.555+13651f45-628a320c\n  octavia: 2025.1.15+b1e463122\n  placement: 2024.2.62+13651f45-628a320c\n  postgres-operator: 1.12.2\n  kube-prometheus-stack: 78.3.0",
+      "raw_line": "nova: 2024.2.555+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "octavia",
+      "version_detected": "2025.1.15+b1e463122",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 30,
+      "version_context": "  neutron: 2024.2.529+13651f45-628a320c\n  nova: 2024.2.555+13651f45-628a320c\n  octavia: 2025.1.15+b1e463122\n  placement: 2024.2.62+13651f45-628a320c\n  postgres-operator: 1.12.2\n  kube-prometheus-stack: 78.3.0\n  redis-operator: 0.22.1",
+      "raw_line": "octavia: 2025.1.15+b1e463122",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "placement",
+      "version_detected": "2024.2.62+13651f45",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 31,
+      "version_context": "  nova: 2024.2.555+13651f45-628a320c\n  octavia: 2025.1.15+b1e463122\n  placement: 2024.2.62+13651f45-628a320c\n  postgres-operator: 1.12.2\n  kube-prometheus-stack: 78.3.0\n  redis-operator: 0.22.1\n  redis-replication: 0.16.9",
+      "raw_line": "placement: 2024.2.62+13651f45-628a320c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "zaqar",
+      "version_detected": "2025.2.0+2d37d445c",
+      "source_file": "helm-chart-versions.yaml",
+      "source_line": 38,
+      "version_context": "  redis-sentinel: 0.16.10\n  sealed-secrets: 2.17.4\n  zaqar: 2025.2.0+2d37d445c\n  prometheus-snmp-exporter: 9.8.1\n  prometheus-rabbitmq-exporter: 1.13.0\n  prometheus-blackbox-exporter: 11.4.1\n",
+      "raw_line": "zaqar: 2025.2.0+2d37d445c",
+      "source_files": [
+        "helm-chart-versions.yaml",
+        "helm-chart-versions.yaml"
+      ],
+      "mapped_release": null,
+      "mapped_release_name": null
+    },
+    {
+      "component": "heat",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/ironic/ironic-helm-overrides.yaml",
+      "source_line": 9,
+      "version_context": "images:\n  tags:\n    ironic_manage_cleaning_network: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ironic_retrive_cleaning_network: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ironic_retrive_swift_config: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    bootstrap: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    db_drop: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"",
+      "raw_line": "ironic_manage_cleaning_network: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/ironic/ironic-helm-overrides.yaml",
+        "base-helm-configs/ironic/ironic-helm-overrides.yaml",
+        "base-helm-configs/glance/glance-helm-overrides.yaml",
+        "base-helm-configs/masakari/masakari-helm-overrides.yaml",
+        "base-helm-configs/gnocchi/gnocchi-helm-overrides.yaml",
+        "base-helm-configs/heat/heat-helm-overrides.yaml",
+        "base-helm-configs/cinder/cinder-helm-overrides.yaml",
+        "base-helm-configs/cloudkitty/cloudkitty-helm-overrides.yaml",
+        "base-helm-configs/horizon/horizon-helm-overrides.yaml",
+        "base-helm-configs/designate/designate-helm-overrides.yaml",
+        "base-helm-configs/ceilometer/ceilometer-helm-overrides.yaml",
+        "base-helm-configs/magnum/magnum-helm-overrides.yaml",
+        "base-helm-configs/placement/placement-helm-overrides.yaml",
+        "base-helm-configs/neutron/neutron-helm-overrides.yaml",
+        "base-helm-configs/barbican/barbican-helm-overrides.yaml",
+        "base-helm-configs/nova/nova-helm-overrides.yaml",
+        "base-helm-configs/keystone/keystone-helm-overrides.yaml",
+        "base-helm-configs/octavia/octavia-helm-overrides.yaml",
+        "base-kustomize/skyline/base/deployment-apiserver.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "glance",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/glance/glance-helm-overrides.yaml",
+      "source_line": 9,
+      "version_context": "    test: null\n    glance_storage_init: \"quay.io/rackspace/rackerlabs-ceph-config-helper:latest-ubuntu_jammy\"\n    glance_metadefs_load: \"ghcr.io/rackerlabs/genestack-images/glance:2024.1-latest\"\n    db_init: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    glance_db_sync: \"ghcr.io/rackerlabs/genestack-images/glance:2024.1-latest\"\n    db_drop: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ks_user: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"",
+      "raw_line": "glance_metadefs_load: \"ghcr.io/rackerlabs/genestack-images/glance:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/glance/glance-helm-overrides.yaml",
+        "base-helm-configs/glance/glance-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "masakari",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/masakari/masakari-helm-overrides.yaml",
+      "source_line": 17,
+      "version_context": "  tags:\n    db_init: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\n    db_sync: ghcr.io/rackerlabs/genestack-images/masakari:2024.1-latest\n    db_drop: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\n    ks_endpoints: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\n    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\n    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest",
+      "raw_line": "db_sync: ghcr.io/rackerlabs/genestack-images/masakari:2024.1-latest",
+      "source_files": [
+        "base-helm-configs/masakari/masakari-helm-overrides.yaml",
+        "base-helm-configs/masakari/masakari-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "gnocchi",
+      "version_detected": "2024.1-ubuntu_jammy",
+      "source_file": "base-helm-configs/gnocchi/gnocchi-helm-overrides.yaml",
+      "source_line": 4,
+      "version_context": "images:\n  tags:\n    db_init: \"quay.io/rackspace/rackerlabs-gnocchi:2024.1-ubuntu_jammy\"\n    db_init_indexer: \"quay.io/rackspace/rackerlabs-postgres:14.5\"\n    db_sync: \"quay.io/rackspace/rackerlabs-gnocchi:2024.1-ubuntu_jammy\"\n    dep_check: \"ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest\"\n    gnocchi_api: \"quay.io/rackspace/rackerlabs-gnocchi:2024.1-ubuntu_jammy\"",
+      "raw_line": "db_init: \"quay.io/rackspace/rackerlabs-gnocchi:2024.1-ubuntu_jammy\"",
+      "source_files": [
+        "base-helm-configs/gnocchi/gnocchi-helm-overrides.yaml",
+        "base-helm-configs/gnocchi/gnocchi-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "cinder",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/cinder/cinder-helm-overrides.yaml",
+      "source_line": 9,
+      "version_context": "  tags:\n    bootstrap: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    cinder_api: \"ghcr.io/rackerlabs/genestack-images/cinder:2024.1-latest\"\n    cinder_backup: \"ghcr.io/rackerlabs/genestack-images/cinder:2024.1-latest\"\n    cinder_backup_storage_init: \"quay.io/rackspace/rackerlabs-ceph-config-helper:latest-ubuntu_jammy\"\n    cinder_db_sync: \"ghcr.io/rackerlabs/genestack-images/cinder:2024.1-latest\"\n    cinder_scheduler: \"ghcr.io/rackerlabs/genestack-images/cinder:2024.1-latest\"",
+      "raw_line": "cinder_api: \"ghcr.io/rackerlabs/genestack-images/cinder:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/cinder/cinder-helm-overrides.yaml",
+        "base-helm-configs/cinder/cinder-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "cloudkitty",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/cloudkitty/cloudkitty-helm-overrides.yaml",
+      "source_line": 21,
+      "version_context": "    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\n    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\n    cloudkitty_api: ghcr.io/rackerlabs/genestack-images/cloudkitty:2024.1-latest\n    cloudkitty_db_sync: ghcr.io/rackerlabs/genestack-images/cloudkitty:2024.1-latest\n    cloudkitty_processor: ghcr.io/rackerlabs/genestack-images/cloudkitty:2024.1-latest\n    cloudkitty_storage_init: ghcr.io/rackerlabs/genestack-images/cloudkitty:2024.1-latest\n    rabbit_init: docker.io/rabbitmq:3.13-management",
+      "raw_line": "cloudkitty_api: ghcr.io/rackerlabs/genestack-images/cloudkitty:2024.1-latest",
+      "source_files": [
+        "base-helm-configs/cloudkitty/cloudkitty-helm-overrides.yaml",
+        "base-helm-configs/cloudkitty/cloudkitty-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "heat",
+      "version_detected": "2025.1-latest",
+      "source_file": "base-helm-configs/zaqar/zaqar-helm-overrides.yaml",
+      "source_line": 4,
+      "version_context": "images:\n  tags:\n    bootstrap: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    db_init: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    db_drop: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    ks_user: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"",
+      "raw_line": "bootstrap: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"",
+      "source_files": [
+        "base-helm-configs/zaqar/zaqar-helm-overrides.yaml",
+        "base-helm-configs/zaqar/zaqar-helm-overrides.yaml",
+        "base-helm-configs/blazar/blazar-helm-overrides.yaml",
+        "base-helm-configs/freezer/freezer-helm-overrides.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "zaqar",
+      "version_detected": "2025.1-latest",
+      "source_file": "base-helm-configs/zaqar/zaqar-helm-overrides.yaml",
+      "source_line": 10,
+      "version_context": "    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    ks_endpoints: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    zaqar_db_sync: \"ghcr.io/rackerlabs/genestack-images/zaqar:2025.1-latest\"\n    zaqar_api: \"ghcr.io/rackerlabs/genestack-images/zaqar:2025.1-latest\"\n    dep_check: \"ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest\"\n    image_repo_sync: null\n    test: null",
+      "raw_line": "zaqar_db_sync: \"ghcr.io/rackerlabs/genestack-images/zaqar:2025.1-latest\"",
+      "source_files": [
+        "base-helm-configs/zaqar/zaqar-helm-overrides.yaml",
+        "base-helm-configs/zaqar/zaqar-helm-overrides.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "horizon",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/horizon/horizon-helm-overrides.yaml",
+      "source_line": 6,
+      "version_context": "    db_init: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    db_drop: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    horizon_db_sync: \"ghcr.io/rackerlabs/genestack-images/horizon:2024.1-latest\"\n    horizon: \"ghcr.io/rackerlabs/genestack-images/horizon:2024.1-latest\"\n    dep_check: \"ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest\"\n    image_repo_sync: null\n",
+      "raw_line": "horizon_db_sync: \"ghcr.io/rackerlabs/genestack-images/horizon:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/horizon/horizon-helm-overrides.yaml",
+        "base-helm-configs/horizon/horizon-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "designate",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/designate/designate-helm-overrides.yaml",
+      "source_line": 54,
+      "version_context": "    ks_endpoints: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    dep_check: \"ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest\"\n    designate_db_sync: \"ghcr.io/rackerlabs/genestack-images/designate:2024.1-latest\"\n    designate_api: \"ghcr.io/rackerlabs/genestack-images/designate:2024.1-latest\"\n    designate_central: \"ghcr.io/rackerlabs/genestack-images/designate:2024.1-latest\"\n    designate_mdns: \"ghcr.io/rackerlabs/genestack-images/designate:2024.1-latest\"\n    designate_worker: \"ghcr.io/rackerlabs/genestack-images/designate:2024.1-latest\"",
+      "raw_line": "designate_db_sync: \"ghcr.io/rackerlabs/genestack-images/designate:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/designate/designate-helm-overrides.yaml",
+        "base-helm-configs/designate/designate-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "ceilometer",
+      "version_detected": "2024.1-ubuntu_jammy",
+      "source_file": "base-helm-configs/ceilometer/ceilometer-helm-overrides.yaml",
+      "source_line": 5,
+      "version_context": "  tags:\n    test: null\n    ceilometer_db_sync: \"quay.io/rackspace/rackerlabs-ceilometer:2024.1-ubuntu_jammy\"\n    rabbit_init: null\n    ks_user: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ceilometer_central: \"quay.io/rackspace/rackerlabs-ceilometer:2024.1-ubuntu_jammy\"",
+      "raw_line": "ceilometer_db_sync: \"quay.io/rackspace/rackerlabs-ceilometer:2024.1-ubuntu_jammy\"",
+      "source_files": [
+        "base-helm-configs/ceilometer/ceilometer-helm-overrides.yaml",
+        "base-helm-configs/ceilometer/ceilometer-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "blazar",
+      "version_detected": "2025.1-latest",
+      "source_file": "base-helm-configs/blazar/blazar-helm-overrides.yaml",
+      "source_line": 4,
+      "version_context": "images:\n  tags:\n    blazar_api: \"ghcr.io/rackerlabs/genestack-images/blazar:2025.1-latest\"\n    blazar_db_sync: \"ghcr.io/rackerlabs/genestack-images/blazar:2025.1-latest\"\n    blazar_manager: \"ghcr.io/rackerlabs/genestack-images/blazar:2025.1-latest\"\n    bootstrap: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    db_drop: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"",
+      "raw_line": "blazar_api: \"ghcr.io/rackerlabs/genestack-images/blazar:2025.1-latest\"",
+      "source_files": [
+        "base-helm-configs/blazar/blazar-helm-overrides.yaml",
+        "base-helm-configs/blazar/blazar-helm-overrides.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "magnum",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/magnum/magnum-helm-overrides.yaml",
+      "source_line": 12,
+      "version_context": "    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ks_user: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    magnum_api: \"ghcr.io/rackerlabs/genestack-images/magnum:2024.1-latest\"\n    magnum_conductor: \"ghcr.io/rackerlabs/genestack-images/magnum:2024.1-latest\"\n    magnum_db_sync: \"ghcr.io/rackerlabs/genestack-images/magnum:2024.1-latest\"\n    rabbit_init: null\n",
+      "raw_line": "magnum_api: \"ghcr.io/rackerlabs/genestack-images/magnum:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/magnum/magnum-helm-overrides.yaml",
+        "base-helm-configs/magnum/magnum-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "placement",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/placement/placement-helm-overrides.yaml",
+      "source_line": 11,
+      "version_context": "    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ks_user: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    placement: \"ghcr.io/rackerlabs/genestack-images/placement:2024.1-latest\"\n    placement_db_sync: \"ghcr.io/rackerlabs/genestack-images/placement:2024.1-latest\"\n\n# NOTE: (brew) requests cpu/mem values based on a three node\n# hyperconverged lab (/scripts/hyperconverged-lab.sh).",
+      "raw_line": "placement: \"ghcr.io/rackerlabs/genestack-images/placement:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/placement/placement-helm-overrides.yaml",
+        "base-helm-configs/placement/placement-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "neutron",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/neutron/neutron-helm-overrides.yaml",
+      "source_line": 10,
+      "version_context": "    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ks_endpoints: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    neutron_db_sync: \"ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest\"\n    neutron_dhcp: \"ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest\"\n    neutron_l3: \"ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest\"\n    neutron_l2gw: \"ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest\"\n    neutron_linuxbridge_agent: \"ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest\"",
+      "raw_line": "neutron_db_sync: \"ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/neutron/neutron-helm-overrides.yaml",
+        "base-helm-configs/neutron/neutron-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "barbican",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/barbican/barbican-helm-overrides.yaml",
+      "source_line": 4,
+      "version_context": "images:\n  tags:\n    barbican_api: \"ghcr.io/rackerlabs/genestack-images/barbican:2024.1-latest\"\n    barbican_db_sync: \"ghcr.io/rackerlabs/genestack-images/barbican:2024.1-latest\"\n    bootstrap: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    db_drop: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    db_init: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"",
+      "raw_line": "barbican_api: \"ghcr.io/rackerlabs/genestack-images/barbican:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/barbican/barbican-helm-overrides.yaml",
+        "base-helm-configs/barbican/barbican-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "nova",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/nova/nova-helm-overrides.yaml",
+      "source_line": 12,
+      "version_context": "    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ks_user: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    nova_api: \"ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest\"\n    nova_archive_deleted_rows: \"ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest\"\n    nova_cell_setup: \"ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest\"\n    nova_cell_setup_init: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    nova_compute: \"ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest\"",
+      "raw_line": "nova_api: \"ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/nova/nova-helm-overrides.yaml",
+        "base-helm-configs/nova/nova-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "freezer",
+      "version_detected": "2025.1-latest",
+      "source_file": "base-helm-configs/freezer/freezer-helm-overrides.yaml",
+      "source_line": 11,
+      "version_context": "    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    ks_endpoints: \"ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest\"\n    freezer_db_sync: \"ghcr.io/rackerlabs/genestack-images/freezer:2025.1-latest\"\n    freezer_api: \"ghcr.io/rackerlabs/genestack-images/freezer:2025.1-latest\"\n    dep_check: \"ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest\"\n\nendpoints:",
+      "raw_line": "freezer_db_sync: \"ghcr.io/rackerlabs/genestack-images/freezer:2025.1-latest\"",
+      "source_files": [
+        "base-helm-configs/freezer/freezer-helm-overrides.yaml",
+        "base-helm-configs/freezer/freezer-helm-overrides.yaml"
+      ],
+      "mapped_release": "2025.1",
+      "mapped_release_name": "Epoxy"
+    },
+    {
+      "component": "keystone",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/keystone/keystone-helm-overrides.yaml",
+      "source_line": 9,
+      "version_context": "    dep_check: \"ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest\"\n    image_repo_sync: null\n    keystone_api: \"ghcr.io/rackerlabs/genestack-images/keystone:2024.1-latest\"\n    keystone_credential_cleanup: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    keystone_credential_rotate: \"ghcr.io/rackerlabs/genestack-images/keystone:2024.1-latest\"\n    keystone_credential_setup: \"ghcr.io/rackerlabs/genestack-images/keystone:2024.1-latest\"\n    keystone_db_sync: \"ghcr.io/rackerlabs/genestack-images/keystone:2024.1-latest\"",
+      "raw_line": "keystone_api: \"ghcr.io/rackerlabs/genestack-images/keystone:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/keystone/keystone-helm-overrides.yaml",
+        "base-helm-configs/keystone/keystone-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "octavia",
+      "version_detected": "2024.1-latest",
+      "source_file": "base-helm-configs/octavia/octavia-helm-overrides.yaml",
+      "source_line": 12,
+      "version_context": "    ks_service: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    ks_user: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    octavia_api: \"ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest\"\n    octavia_db_sync: \"ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest\"\n    octavia_health_manager: \"ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest\"\n    octavia_health_manager_init: \"ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest\"\n    octavia_housekeeping: \"ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest\"",
+      "raw_line": "octavia_api: \"ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest\"",
+      "source_files": [
+        "base-helm-configs/octavia/octavia-helm-overrides.yaml",
+        "base-helm-configs/octavia/octavia-helm-overrides.yaml"
+      ],
+      "mapped_release": "2024.1",
+      "mapped_release_name": "Caracal"
+    },
+    {
+      "component": "skyline",
+      "version_detected": "2024.2-latest",
+      "source_file": "base-kustomize/skyline/base/deployment-apiserver.yaml",
+      "source_line": 338,
+      "version_context": "                  optional: true\n        - name: skyline-apiserver-db-migrate\n          image: \"ghcr.io/rackerlabs/genestack-images/skyline:2024.2-latest\"\n          imagePullPolicy: IfNotPresent\n          resources:\n            requests:\n              memory: \"256Mi\"",
+      "raw_line": "image: \"ghcr.io/rackerlabs/genestack-images/skyline:2024.2-latest\"",
+      "source_files": [
+        "base-kustomize/skyline/base/deployment-apiserver.yaml",
+        "base-kustomize/skyline/base/deployment-apiserver.yaml"
+      ],
+      "mapped_release": "2024.2",
+      "mapped_release_name": "Dalmatian"
+    },
+    {
+      "component": "octavia",
+      "version_detected": "3",
+      "source_file": "ansible/playbooks/octavia-preconf-main.yaml",
+      "source_line": 14,
+      "version_context": "    octavia_os_project_domain_name: \"{{ octavia_os_user_domain_name }}\"\n    octavia_os_region_name: RegionOne\n    octavia_os_identity_api_version: 3\n    octavia_os_auth_version: 3\n    octavia_nova_endpoint_type: \"{{ octavia_os_endpoint_type }}\"\n    octavia_helm_values_file: \"{{ octavia_helm_file }}\"\n    interface: \"{{ interface }}\"",
+      "raw_line": "octavia_os_identity_api_version: 3",
+      "source_files": [
+        "ansible/playbooks/octavia-preconf-main.yaml",
+        "ansible/playbooks/octavia-preconf-main.yaml"
+      ],
+      "mapped_release": null,
+      "mapped_release_name": null
+    }
+  ],
+  "release_distribution": {
+    "2024.2": 15,
+    "2025.1": 8,
+    "2024.1": 16
+  },
+  "scraped_release_data": {}
+}

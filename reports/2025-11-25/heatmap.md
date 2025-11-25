@@ -13,9 +13,9 @@
 | 10 | Bjoern Teipel        |        28 |
 | 11 | Ken Crandall         |        23 |
 | 12 | phillip-toohill      |        23 |
-| 13 | Pratik Bandarkar     |        21 |
-| 14 | Derek Noble          |        19 |
-| 15 | GitHub Action        |        19 |
+| 13 | GitHub Action        |        22 |
+| 14 | Pratik Bandarkar     |        21 |
+| 15 | Derek Noble          |        19 |
 | 16 | Chris Blumentritt    |        14 |
 | 17 | github-actions[bot]  |        14 |
 | 18 | Jorge Perez          |        12 |
