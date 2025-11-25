@@ -7,14 +7,54 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import sys
 from pathlib import Path
+try:
+    import plotly.graph_objects as go
+    import plotly.express as px
+    PLOTLY_AVAILABLE = True
+    PLOTLY_EXPRESS_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
+    PLOTLY_EXPRESS_AVAILABLE = False
+    px = None
+    go = None
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add dashboard directory to path for local imports
+sys.path.insert(0, str(Path(__file__).parent))
 try:
     from version_inventory import VersionInventory
     VERSION_INVENTORY_AVAILABLE = True
 except ImportError:
     VERSION_INVENTORY_AVAILABLE = False
+
+try:
+    from bmw_repo_health_gauges import render_repo_health_gauges
+    REPO_HEALTH_GAUGES_AVAILABLE = True
+except ImportError:
+    REPO_HEALTH_GAUGES_AVAILABLE = False
+
+try:
+    from theme_manager import get_theme, theme_switcher
+    THEME_MANAGER_AVAILABLE = True
+except ImportError:
+    THEME_MANAGER_AVAILABLE = False
+    def get_theme():
+        # Default to light theme if theme_manager not available
+        return {
+            "bg": "#FFFFFF",
+            "card": "#F7F9FC",
+            "text": "#1A1A1A",
+            "accent": "#007BFF",
+            "accent_glow": "rgba(0, 123, 255, 0.35)",
+            "good": "#28A745",
+            "warn": "#FFC107",
+            "bad": "#DC3545",
+            "chart_bg": "#FFFFFF",
+            "chart_grid": "#DDDDDD",
+        }
+    def theme_switcher():
+        pass
 
 try:
     from openstack_compatibility import OpenStackCompatibilityAnalyzer
@@ -40,7 +80,7 @@ GITHUB_GREEN_PALETTE = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]
 # Streamlit Page Config
 # ---------------------------------------------------
 st.set_page_config(
-    page_title="Genestack Intelligence Dashboard",
+    page_title="Git-Dash-IntAIL",
     layout="wide",
     page_icon="🧬"
 )
@@ -82,8 +122,237 @@ def wrap_text(value: Any, width: int = 80) -> Any:
 def wrap_dataframe_text(df: pd.DataFrame, width: int = 80) -> pd.DataFrame:
     return df.map(lambda val: wrap_text(val, width=width))
 
-st.title("🧬 Genestack Intelligence Dashboard")
-st.markdown("### Real-Time Repository Intelligence • Contributors • PR Insights • Drift Detection")
+def safe_percent(numerator, denominator):
+    """Safely compute percentage, avoiding comma errors"""
+    n = float(str(numerator).replace(",", ""))
+    d = float(str(denominator).replace(",", ""))
+    if d == 0:
+        return 0.0
+    return round((n / d) * 100, 1)
+
+def mercedes_gauge(title, percent, current, total):
+    """Create a Mercedes-style gauge component"""
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=float(percent),
+        number={'suffix': "%", "font": {"size": 38, "color": "white"}},
+        title={'text': f"<b>{title}</b><br>{current}/{total}", "font": {"size": 20, "color": "white"}},
+        gauge={
+            'axis': {'range': [0, 100]},
+            'bar': {'color': "#2ecc71", 'thickness': 0.28},
+            'bgcolor': "#111",
+            'borderwidth': 2,
+            'bordercolor': "#222",
+            'steps': [
+                {'range': [0, percent], 'color': '#2ecc71'},
+                {'range': [percent, 100], 'color': '#333'},
+            ]
+        }
+    ))
+
+    fig.update_layout(
+        paper_bgcolor="#0E1117",
+        plot_bgcolor="#0E1117",
+        height=300,
+        margin=dict(l=10, r=10, t=50, b=10)
+    )
+    return fig
+
+def bmw_gauge(title, percent, current, total, theme=None):
+    """Create a BMW M-Dashboard style gauge component using theme system"""
+    if theme is None:
+        theme = get_theme()
+    
+    color_good = theme["good"]
+    color_warn = theme["warn"]
+    color_bad = theme["bad"]
+    
+    # Build steps to cover full range 0-100 as background zones
+    steps = [
+        {"range": [0, 40], "color": color_bad},      # Bad band (0-40%)
+        {"range": [40, 70], "color": color_warn},    # Warn band (40-70%)
+        {"range": [70, 100], "color": color_good},    # Good band (70-100%)
+    ]
+    
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=float(percent),
+        number={
+            "suffix": "%",
+            "font": {"size": 46, "color": theme["text"], "family": "Segoe UI Semibold"}
+        },
+        title={
+            "text": f"<b>{title}</b><br><span style='font-size:20px'>{current}/{total}</span>",
+            "font": {"size": 22, "color": theme["text"]}
+        },
+        gauge={
+            "axis": {
+                "range": [0, 100],
+                "tickcolor": theme["text"],
+                "tickwidth": 1,
+                "ticks": "inside"
+            },
+            "bar": {"color": theme["accent"], "thickness": 0.28},
+            "bgcolor": theme["bg"],
+            "borderwidth": 0,
+
+            # BMW M-Performance bands
+            "steps": steps,
+
+            # Redline indicator
+            "threshold": {
+                "line": {"color": theme["accent_glow"], "width": 5},
+                "thickness": 0.9,
+                "value": percent
+            }
+        }
+    ))
+
+    fig.update_layout(
+        paper_bgcolor=theme["chart_bg"],
+        plot_bgcolor=theme["chart_bg"],
+        height=350,
+        margin=dict(l=20, r=20, t=80, b=20),
+        font={'color': theme["text"], 'family': "Segoe UI"},
+        xaxis_gridcolor=theme["chart_grid"],
+        yaxis_gridcolor=theme["chart_grid"]
+    )
+
+    return fig
+
+def stat_card(title, value, theme=None):
+    """Create a themed stat card for KPI metrics"""
+    if theme is None:
+        theme = get_theme()
+    st.markdown(
+        f"""
+        <div style="
+            background:{theme['card']};
+            padding:15px;
+            border-radius:12px;
+            box-shadow:0px 0px 12px {theme['accent_glow']};
+            text-align:center;">
+            <h4 style="color:{theme['text']}">{title}</h4>
+            <div style="font-size:36px;color:{theme['accent']}">{value}</div>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+def load_branch_pr_stats():
+    """Load branch PR/MR statistics from CSV or return fallback mock data"""
+    try:
+        df = pd.read_csv("reports/branch_pr_stats.csv")   # if auto-generated by pipeline
+        return df
+    except:
+        # fallback mock values (replace automatically when real data exists)
+        return pd.DataFrame([
+            {"branch": "main", "prs": 142},
+            {"branch": "release-2025.3", "prs": 88},
+            {"branch": "installer-script-updates", "prs": 52},
+            {"branch": "manila-driver-conf", "prs": 37},
+            {"branch": "OSPC-1624-enable-ipsec", "prs": 32},
+        ])
+
+def top5_branch_pr_chart(df, theme=None):
+    """Generate a horizontal bar chart for Top 5 Branches by PR/MR count"""
+    if theme is None:
+        theme = get_theme()
+    
+    # take top 5 by PR count
+    df = df.sort_values("prs", ascending=False).head(5)
+
+    fig = px.bar(
+        df,
+        x="prs",
+        y="branch",
+        orientation="h",
+        title="Top 5 Branches — Pull / Merge Requests",
+        color="prs",
+        color_continuous_scale="Blues",
+        text="prs",
+    )
+
+    fig.update_traces(textfont_size=14, textposition="outside")
+    fig.update_layout(
+        paper_bgcolor=theme["chart_bg"],
+        plot_bgcolor=theme["chart_bg"],
+        font=dict(color=theme["text"], size=14),
+        height=420,
+        margin=dict(l=20, r=20, t=70, b=20),
+        xaxis_gridcolor=theme["chart_grid"],
+        yaxis_gridcolor=theme["chart_grid"]
+    )
+
+    return fig
+
+# Initialize theme switcher first (so dark_mode is set in session_state)
+if THEME_MANAGER_AVAILABLE:
+    if "dark_mode" not in st.session_state:
+        st.session_state["dark_mode"] = False  # Default to light mode
+
+# Get theme
+theme = get_theme()
+
+# Section title colors based on mode
+is_dark = st.session_state.get("dark_mode", False) if THEME_MANAGER_AVAILABLE else False
+section_title_color = "#00FFFF" if is_dark else "#006699"  # Neon blue in dark, IBM blue in light
+
+st.markdown(
+    f"""
+    <style>
+        body {{
+            background-color: {theme['bg']} !important;
+            color: {theme['text']} !important;
+        }}
+        .stApp {{
+            background-color: {theme['bg']} !important;
+        }}
+        .block-container {{
+            padding-top: 1rem;
+            background-color: {theme['bg']} !important;
+        }}
+        div[data-testid="stMetricValue"] {{
+            color: {theme['accent']} !important;
+        }}
+        table {{
+            background-color: {theme['card']} !important;
+            color: {theme['text']} !important;
+        }}
+        th {{
+            background-color: {theme['accent']} !important;
+            color: #fff !important;
+        }}
+        td {{
+            color: {theme['text']} !important;
+        }}
+        .stDataFrame {{
+            background-color: {theme['card']} !important;
+        }}
+        /* Section titles - neon blue in dark mode, IBM blue in light mode (no glow) */
+        h1, h2, h3, h4, h5, h6 {{
+            color: {section_title_color} !important;
+        }}
+        /* Markdown headers */
+        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3, .stMarkdown h4, .stMarkdown h5, .stMarkdown h6 {{
+            color: {section_title_color} !important;
+        }}
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
+# Header with theme switcher
+col_title, col_theme = st.columns([4, 1])
+with col_title:
+    st.title("🧬 Git-Dash-IntAIL")
+    st.markdown("### Real-Time Repository Intelligence • Contributors • PR Insights • Drift Detection")
+with col_theme:
+    st.markdown("<br>", unsafe_allow_html=True)  # Spacing
+    if THEME_MANAGER_AVAILABLE:
+        theme_switcher()
+    else:
+        st.info("Theme manager not available")
 
 # ---------------------------------------------------
 # Load latest report directory
@@ -105,9 +374,77 @@ def git(cmd):
     except:
         return ""
 
+# Initialize session state for repo URL
+if 'git_repo_url' not in st.session_state:
+    # Try to get from git config first
+    detected_url = git("git config --get remote.origin.url")
+    if not detected_url:
+        detected_url = git("git remote get-url origin")
+    if not detected_url:
+        # Fallback to known repository URL
+        detected_url = "https://github.com/rackerlabs/genestack"
+    
+    # Clean up the URL
+    if detected_url:
+        if detected_url.startswith("git@"):
+            detected_url = detected_url.replace(":", "/").replace("git@", "https://")
+        elif detected_url.startswith("git://"):
+            detected_url = detected_url.replace("git://", "https://")
+        if detected_url.endswith(".git"):
+            detected_url = detected_url[:-4]
+    
+    st.session_state['git_repo_url'] = detected_url
+
+# Git Repository URL Input
+st.markdown("### 🔗 Git Repository URL")
+col1, col2 = st.columns([3, 1])
+with col1:
+    user_repo_url = st.text_input(
+        "Enter Git Repository URL to analyze",
+        value=st.session_state['git_repo_url'],
+        placeholder="https://github.com/rackerlabs/genestack",
+        help="Enter any Git repository URL (GitHub, GitLab, etc.) to analyze. The app will use this repository for all analysis.",
+        key="repo_url_input"
+    )
+with col2:
+    if st.button("🔍 Use This Repo", type="primary"):
+        if user_repo_url:
+            # Clean up the URL
+            cleaned_url = user_repo_url.strip()
+            if cleaned_url.startswith("git@"):
+                cleaned_url = cleaned_url.replace(":", "/").replace("git@", "https://")
+            elif cleaned_url.startswith("git://"):
+                cleaned_url = cleaned_url.replace("git://", "https://")
+            if cleaned_url.endswith(".git"):
+                cleaned_url = cleaned_url[:-4]
+            
+            st.session_state['git_repo_url'] = cleaned_url
+            st.success(f"✅ Repository set to: {cleaned_url}")
+            st.rerun()
+
+# Display current repository URL
+current_repo_url = st.session_state.get('git_repo_url', '')
+if current_repo_url:
+    st.markdown(f"**📦 Currently Analyzing:** [{current_repo_url}]({current_repo_url})")
+
+# Display README
+readme_path = Path("README.md")
+if readme_path.exists():
+    try:
+        with open(readme_path, 'r', encoding='utf-8') as f:
+            readme_content = f.read()
+        
+        with st.expander("📖 Repository README", expanded=False):
+            st.markdown(readme_content)
+    except Exception as e:
+        st.info(f"Could not load README: {str(e)}")
+
 # ---------------------------------------------------
 # Extract Git Metrics
 # ---------------------------------------------------
+
+# Initialize insights_df early (used in moved sections)
+insights_df = pd.DataFrame()
 
 # 1. Contributors
 contributors = git("git shortlog -sn --all")
@@ -332,6 +669,397 @@ ax.pie(
 ax.axis('equal')
 st.pyplot(fig)
 
+# Top 3 Contributors - Medals & Thank You
+st.markdown("### 🏆 Top Contributors Recognition")
+st.markdown("#### 🙏 **Thank You for Your Outstanding Contributions!**")
+
+if not contrib_df.empty and len(contrib_df) >= 3:
+    top_3_contributors = contrib_df.head(3)
+    
+    # Create medals display
+    medal_col1, medal_col2, medal_col3 = st.columns(3)
+    
+    with medal_col1:
+        # Gold Medal - 1st Place
+        contributor_1 = top_3_contributors.iloc[0]
+        st.markdown(f"<div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%); border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>", unsafe_allow_html=True)
+        st.markdown(f"## 🥇 **GOLD MEDAL**")
+        st.markdown(f"### **{contributor_1['Contributor']}**")
+        st.markdown(f"#### **{contributor_1['Commits']:,} commits**")
+        st.markdown(f"</div>", unsafe_allow_html=True)
+        if PLOTLY_AVAILABLE:
+            fig_gold = go.Figure(go.Indicator(
+                mode = "number+gauge",
+                value = contributor_1['Commits'],
+                domain = {'x': [0, 1], 'y': [0, 1]},
+                title = {'text': "Total Commits", 'font': {'size': 18, 'color': '#FFD700'}},
+                number = {'font': {'size': 60, 'color': '#FFD700', 'family': 'Arial Black'}},
+                gauge = {
+                    'axis': {'range': [None, contrib_df['Commits'].max() * 1.2], 'tickcolor': '#FFD700'},
+                    'bar': {'color': "#FFD700", 'thickness': 0.4},
+                    'bgcolor': "white",
+                    'borderwidth': 3,
+                    'bordercolor': "#FFD700",
+                    'steps': [
+                        {'range': [0, contrib_df['Commits'].max() * 0.5], 'color': "#f0f0f0"},
+                        {'range': [contrib_df['Commits'].max() * 0.5, contrib_df['Commits'].max()], 'color': "#d0d0d0"}
+                    ]
+                }
+            ))
+            fig_gold.update_layout(height=250, margin=dict(l=10, r=10, t=50, b=10), paper_bgcolor="rgba(0,0,0,0)")
+            st.plotly_chart(fig_gold, use_container_width=True)
+    
+    with medal_col2:
+        # Silver Medal - 2nd Place
+        contributor_2 = top_3_contributors.iloc[1]
+        st.markdown(f"<div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #C0C0C0 0%, #808080 100%); border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>", unsafe_allow_html=True)
+        st.markdown(f"## 🥈 **SILVER MEDAL**")
+        st.markdown(f"### **{contributor_2['Contributor']}**")
+        st.markdown(f"#### **{contributor_2['Commits']:,} commits**")
+        st.markdown(f"</div>", unsafe_allow_html=True)
+        if PLOTLY_AVAILABLE:
+            fig_silver = go.Figure(go.Indicator(
+                mode = "number+gauge",
+                value = contributor_2['Commits'],
+                domain = {'x': [0, 1], 'y': [0, 1]},
+                title = {'text': "Total Commits", 'font': {'size': 18, 'color': '#C0C0C0'}},
+                number = {'font': {'size': 60, 'color': '#C0C0C0', 'family': 'Arial Black'}},
+                gauge = {
+                    'axis': {'range': [None, contrib_df['Commits'].max() * 1.2], 'tickcolor': '#C0C0C0'},
+                    'bar': {'color': "#C0C0C0", 'thickness': 0.4},
+                    'bgcolor': "white",
+                    'borderwidth': 3,
+                    'bordercolor': "#C0C0C0",
+                    'steps': [
+                        {'range': [0, contrib_df['Commits'].max() * 0.5], 'color': "#f0f0f0"},
+                        {'range': [contrib_df['Commits'].max() * 0.5, contrib_df['Commits'].max()], 'color': "#d0d0d0"}
+                    ]
+                }
+            ))
+            fig_silver.update_layout(height=250, margin=dict(l=10, r=10, t=50, b=10), paper_bgcolor="rgba(0,0,0,0)")
+            st.plotly_chart(fig_silver, use_container_width=True)
+    
+    with medal_col3:
+        # Bronze Medal - 3rd Place
+        contributor_3 = top_3_contributors.iloc[2]
+        st.markdown(f"<div style='text-align: center; padding: 20px; background: linear-gradient(135deg, #CD7F32 0%, #8B4513 100%); border-radius: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);'>", unsafe_allow_html=True)
+        st.markdown(f"## 🥉 **BRONZE MEDAL**")
+        st.markdown(f"### **{contributor_3['Contributor']}**")
+        st.markdown(f"#### **{contributor_3['Commits']:,} commits**")
+        st.markdown(f"</div>", unsafe_allow_html=True)
+        if PLOTLY_AVAILABLE:
+            fig_bronze = go.Figure(go.Indicator(
+                mode = "number+gauge",
+                value = contributor_3['Commits'],
+                domain = {'x': [0, 1], 'y': [0, 1]},
+                title = {'text': "Total Commits", 'font': {'size': 18, 'color': '#CD7F32'}},
+                number = {'font': {'size': 60, 'color': '#CD7F32', 'family': 'Arial Black'}},
+                gauge = {
+                    'axis': {'range': [None, contrib_df['Commits'].max() * 1.2], 'tickcolor': '#CD7F32'},
+                    'bar': {'color': "#CD7F32", 'thickness': 0.4},
+                    'bgcolor': "white",
+                    'borderwidth': 3,
+                    'bordercolor': "#CD7F32",
+                    'steps': [
+                        {'range': [0, contrib_df['Commits'].max() * 0.5], 'color': "#f0f0f0"},
+                        {'range': [contrib_df['Commits'].max() * 0.5, contrib_df['Commits'].max()], 'color': "#d0d0d0"}
+                    ]
+                }
+            ))
+            fig_bronze.update_layout(height=250, margin=dict(l=10, r=10, t=50, b=10), paper_bgcolor="rgba(0,0,0,0)")
+            st.plotly_chart(fig_bronze, use_container_width=True)
+    
+    # Detailed breakdown table for top 3 contributors
+    st.markdown("### 📊 Detailed Contribution Breakdown")
+    
+    def get_contributor_stats(contributor_name):
+        """Get detailed stats for a contributor: branches and files"""
+        # Escape contributor name for shell command
+        escaped_name = contributor_name.replace("'", "'\\''")
+        
+        # Get branches they contributed to
+        branch_stats = {}
+        for branch in branch_df['Branch'].head(10):  # Check top 10 branches
+            try:
+                branch_escaped = shlex.quote(branch)
+                branch_commits = git(f"git log {branch_escaped} --author='{escaped_name}' --pretty=format:'%H' 2>/dev/null | wc -l")
+                commit_count = int(branch_commits.strip()) if branch_commits.strip().isdigit() else 0
+                if commit_count > 0:
+                    branch_stats[branch] = commit_count
+            except:
+                pass
+        
+        # Get files they modified most
+        file_stats = {}
+        try:
+            all_files_cmd = f"git log --author='{escaped_name}' --pretty=format:'' --name-only 2>/dev/null | grep -v '^$' | sort | uniq -c | sort -nr | head -10"
+            all_files = git(all_files_cmd)
+            if all_files:
+                for line in all_files.split('\n')[:10]:
+                    if line.strip():
+                        parts = line.strip().split(maxsplit=1)
+                        if len(parts) == 2:
+                            try:
+                                count = int(parts[0])
+                                file_path = parts[1]
+                                if file_path and file_path.strip():
+                                    file_stats[file_path] = count
+                            except:
+                                pass
+        except:
+            pass
+        
+        return branch_stats, file_stats
+    
+    # Create detailed breakdown table
+    breakdown_rows = []
+    for rank, (idx, contributor_row) in enumerate(top_3_contributors.iterrows(), 1):
+        contributor_name = contributor_row['Contributor']
+        total_commits = contributor_row['Commits']
+        
+        branch_stats, file_stats = get_contributor_stats(contributor_name)
+        
+        # Top branches
+        top_branches = sorted(branch_stats.items(), key=lambda x: x[1], reverse=True)[:5]
+        top_branches_str = ", ".join([f"{branch} ({count})" for branch, count in top_branches]) if top_branches else "N/A"
+        
+        # Top files
+        top_files = sorted(file_stats.items(), key=lambda x: x[1], reverse=True)[:5]
+        top_files_str = ", ".join([f"{file} ({count})" for file, count in top_files]) if top_files else "N/A"
+        
+        medal = "🥇 Gold" if rank == 1 else "🥈 Silver" if rank == 2 else "🥉 Bronze"
+        
+        breakdown_rows.append({
+            'Medal': medal,
+            'Contributor': contributor_name,
+            'Total Commits': f"{total_commits:,}",
+            'Top Branches': top_branches_str,
+            'Top Files': top_files_str
+        })
+    
+    breakdown_df = pd.DataFrame(breakdown_rows)
+    st.dataframe(
+        breakdown_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Medal": st.column_config.TextColumn("Medal", width="small"),
+            "Contributor": st.column_config.TextColumn("Contributor", width="medium"),
+            "Total Commits": st.column_config.TextColumn("Total Commits", width="small"),
+            "Top Branches": st.column_config.TextColumn("Top Branches", width="large"),
+            "Top Files": st.column_config.TextColumn("Top Files", width="large")
+        }
+    )
+    
+    st.markdown("---")
+    
+    # Copy of sections moved here from "What Now ?" section
+    # BMW Repo Health Gauges - Real Git-based KPIs
+    if REPO_HEALTH_GAUGES_AVAILABLE and PLOTLY_AVAILABLE:
+        try:
+            render_repo_health_gauges(theme=theme)
+        except Exception as e:
+            st.error(f"Error rendering repo health gauges: {str(e)}")
+            st.info("Falling back to basic metrics display...")
+    else:
+        st.info("Repo health gauges not available. Install required dependencies.")
+    
+    st.markdown("---")
+    
+    # Top 5 Contributors Table
+    st.markdown("### 👥 Top 5 Contributors")
+    if not contrib_df.empty:
+        top_5_contributors = contrib_df.head(5).copy()
+        top_5_contributors['Rank'] = range(1, len(top_5_contributors) + 1)
+        top_5_contributors_display = top_5_contributors[['Rank', 'Contributor', 'Commits']].copy()
+        top_5_contributors_display.columns = ['Rank', 'Contributor', 'Commits']
+        top_5_contributors_display['Commits'] = top_5_contributors_display['Commits'].apply(lambda x: f"{x:,}")
+        st.dataframe(
+            top_5_contributors_display,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Rank": st.column_config.NumberColumn("Rank", width="small"),
+                "Contributor": st.column_config.TextColumn("Contributor", width="large"),
+                "Commits": st.column_config.TextColumn("Commits", width="medium")
+            }
+        )
+    else:
+        st.info("No contributor data available.")
+    
+    # Top Active Branches Table
+    st.markdown("### 🌿 Top 5 Active Branches")
+    if not branch_df.empty:
+        top_5_branches = branch_df.head(5).copy()
+        top_5_branches['Rank'] = range(1, len(top_5_branches) + 1)
+        top_5_branches_display = top_5_branches[['Rank', 'Branch', 'Commits', 'Updated Files']].copy()
+        top_5_branches_display.columns = ['Rank', 'Branch', 'Commits', 'Files Updated']
+        top_5_branches_display['Commits'] = top_5_branches_display['Commits'].apply(lambda x: f"{x:,}")
+        top_5_branches_display['Files Updated'] = top_5_branches_display['Files Updated'].apply(lambda x: f"{x:,}")
+        st.dataframe(
+            top_5_branches_display,
+            use_container_width=True,
+            hide_index=True,
+            column_config={
+                "Rank": st.column_config.NumberColumn("Rank", width="small"),
+                "Branch": st.column_config.TextColumn("Branch", width="large"),
+                "Commits": st.column_config.TextColumn("Commits", width="medium"),
+                "Files Updated": st.column_config.TextColumn("Files Updated", width="medium")
+            }
+        )
+    else:
+        st.info("No branch data available.")
+    
+    # Top 5 Branches by Pull/Merge Requests Chart
+    st.markdown("### 🔀 Top 5 Branches — Pull / Merge Requests")
+    if PLOTLY_AVAILABLE and PLOTLY_EXPRESS_AVAILABLE:
+        try:
+            branch_pr_df = load_branch_pr_stats()
+            fig_branch_pr = top5_branch_pr_chart(branch_pr_df, theme=theme)
+            st.plotly_chart(fig_branch_pr, use_container_width=True)
+        except Exception as e:
+            st.error(f"Error rendering PR/MR chart: {str(e)}")
+            st.info("Falling back to table view...")
+            branch_pr_df = load_branch_pr_stats()
+            st.dataframe(branch_pr_df.head(5), use_container_width=True, hide_index=True)
+    else:
+        st.info("Plotly Express not available for PR/MR chart visualization.")
+        # Fallback to table view
+        branch_pr_df = load_branch_pr_stats()
+        st.dataframe(branch_pr_df.head(5), use_container_width=True, hide_index=True)
+    
+    # Top Moving Parts and Updates Table
+    st.markdown("### 🔥 Top Moving Parts & Updates")
+    if not file_df.empty:
+        top_5_files = file_df.head(5).copy()
+        top_5_files['Rank'] = range(1, len(top_5_files) + 1)
+        
+        # Merge with AI insights if available
+        try:
+            has_insights = not insights_df.empty
+        except (NameError, AttributeError):
+            has_insights = False
+        
+        if has_insights:
+            top_5_files_display = top_5_files[['Rank', 'File', 'Changes']].copy()
+            top_5_files_display['Changes'] = top_5_files_display['Changes'].apply(lambda x: f"{x:,}")
+            
+            # Add AI insights columns
+            issues_list = []
+            recommendations_list = []
+            for idx, row in top_5_files.iterrows():
+                file_path = row['File']
+                file_insights = insights_df[insights_df['File'] == file_path]
+                if not file_insights.empty:
+                    insight = file_insights.iloc[0]
+                    issues_list.append(insight.get('Issues', 'No issues detected'))
+                    recommendations_list.append(insight.get('Suggested Action', 'No specific action'))
+                else:
+                    issues_list.append('No analysis available')
+                    recommendations_list.append('No recommendation')
+            
+            top_5_files_display['Issues'] = issues_list
+            top_5_files_display['Recommendation'] = recommendations_list
+            top_5_files_display.columns = ['Rank', 'File', 'Changes', 'Issues', 'Recommendation']
+        else:
+            top_5_files_display = top_5_files[['Rank', 'File', 'Changes']].copy()
+            top_5_files_display['Changes'] = top_5_files_display['Changes'].apply(lambda x: f"{x:,}")
+            top_5_files_display.columns = ['Rank', 'File', 'Changes']
+        
+        # Build column config dynamically
+        column_config = {
+            "Rank": st.column_config.NumberColumn("Rank", width="small"),
+            "File": st.column_config.TextColumn("File", width="large"),
+            "Changes": st.column_config.TextColumn("Changes", width="medium")
+        }
+        if 'Issues' in top_5_files_display.columns:
+            column_config["Issues"] = st.column_config.TextColumn("Issues", width="large")
+        if 'Recommendation' in top_5_files_display.columns:
+            column_config["Recommendation"] = st.column_config.TextColumn("Recommendation", width="large")
+        
+        st.dataframe(
+            top_5_files_display,
+            use_container_width=True,
+            hide_index=True,
+            column_config=column_config
+        )
+    else:
+        st.info("No file change data available.")
+    
+    st.markdown("---")
+    
+    # Copy of sections moved here from main sections
+    # Top 10 Modified Files per Branch
+    st.markdown("### 🗂 Top 10 Modified Files per Branch")
+    if branch_files_detail_df.empty:
+        st.info("No file change data available for the selected branches.")
+    else:
+        branch_files_display = branch_files_detail_df.copy()
+        branch_files_display["Changes"] = branch_files_display["Changes"].astype(int)
+        render_editable_table(branch_files_display, key="modified_files_table_moved")
+    
+    # GitHub-style Contribution Calendar
+    st.markdown("### 🔥 GitHub-Style Contribution Calendar (Last 12 Months)")
+    
+    calendar_raw = git("git log --pretty=format:'%an|%ad' --date=short")
+    calendar_records = []
+    for line in calendar_raw.split("\n"):
+        if "|" not in line:
+            continue
+        author, date_str = line.split("|", 1)
+        calendar_records.append([author.strip(), date_str.strip(), 1])
+    
+    if calendar_records:
+        calendar_df = pd.DataFrame(calendar_records, columns=["author", "date", "commits"])
+        calendar_df["date"] = pd.to_datetime(calendar_df["date"])
+        
+        end_date = pd.Timestamp.today().normalize()
+        start_date = end_date - pd.Timedelta(days=365)
+        calendar_df = calendar_df[(calendar_df["date"] >= start_date) & (calendar_df["date"] <= end_date)]
+        
+        if calendar_df.empty:
+            st.info("No commit activity found for the last 12 months.")
+        else:
+            calendar_df["week"] = calendar_df["date"].dt.to_period("W")
+            week_range = pd.period_range(start=start_date.to_period("W"), end=end_date.to_period("W"), freq="W")
+            
+            weekly = calendar_df.groupby(["author", "week"])["commits"].sum().unstack(fill_value=0)
+            weekly = weekly.reindex(columns=week_range, fill_value=0)
+            weekly["total"] = weekly.sum(axis=1)
+            weekly = weekly.sort_values("total", ascending=False).drop(columns=["total"])
+            
+            week_labels = [period.start_time.strftime("%Y-%m-%d") for period in weekly.columns]
+            display_df = weekly.copy().astype(int)
+            display_df.columns = week_labels
+            
+            bar_color = "#2563eb"
+            styled_calendar = (
+                display_df.style
+                .format("{:.0f}")
+                .bar(axis=1, color=bar_color)
+            )
+            st.dataframe(styled_calendar, width="stretch")
+    else:
+        st.info("No commit history found to build the calendar.")
+    
+    # Top 10 Active Branches
+    st.markdown("### 🌿 Top 10 Active Branches")
+    render_editable_table(branch_df, key="top_branches_table_moved")
+    
+    # Last 10 PRs (Merged)
+    st.markdown("### 🔄 Last 10 PRs (Merged)")
+    if pr_df.empty:
+        st.info("No merged PR history available.")
+    else:
+        render_editable_table(pr_df, key="pr_table_moved")
+    
+    st.markdown("---")
+else:
+    if not contrib_df.empty:
+        st.info(f"🏆 **Thank you to all contributors!** Currently showing {len(contrib_df)} contributor(s).")
+    else:
+        st.info("No contributor data available for recognition.")
+
 # ---------------------------------------------------
 # Complete Component Version Inventory (Replaces OpenStack Component Versions)
 # ---------------------------------------------------
@@ -353,9 +1081,12 @@ inv_df = None
 if inventory_csv.exists():
     try:
         inv_df = pd.read_csv(inventory_csv)
-        # Ensure Comments column exists
+        # Ensure Comments column exists and convert to string type
         if 'Comments' not in inv_df.columns:
             inv_df['Comments'] = ''
+        else:
+            # Convert Comments column to string, replacing NaN/None with empty string
+            inv_df['Comments'] = inv_df['Comments'].fillna('').astype(str).replace('nan', '').replace('None', '')
         inventory_loaded = True
         st.success(f"📄 Loaded existing inventory: {len(inv_df)} components found")
     except Exception as e:
@@ -431,11 +1162,17 @@ if inventory_loaded and inv_df is not None and not inv_df.empty:
     
     # Display table with editable Comments column
     if not filtered_df.empty:
-        # Ensure Comments column exists
+        # Ensure Comments column exists and convert to string type
         if 'Comments' not in filtered_df.columns:
             filtered_df['Comments'] = ''
+        else:
+            # Convert Comments column to string, replacing NaN/None with empty string
+            filtered_df['Comments'] = filtered_df['Comments'].fillna('').astype(str).replace('nan', '').replace('None', '')
         if 'Comments' not in inv_df.columns:
             inv_df['Comments'] = ''
+        else:
+            # Convert Comments column to string, replacing NaN/None with empty string
+            inv_df['Comments'] = inv_df['Comments'].fillna('').astype(str).replace('nan', '').replace('None', '')
         
         # Use data_editor for editable Comments column
         edited_df = st.data_editor(
@@ -535,9 +1272,18 @@ recommended_stack = None
 if repo_inventory_csv.exists():
     try:
         repo_table_df = pd.read_csv(repo_inventory_csv)
-        # Ensure Comments column exists
+        # Ensure Comments column exists and convert to string type
         if 'Comments' not in repo_table_df.columns:
             repo_table_df['Comments'] = ''
+        else:
+            # Convert Comments column to string, replacing NaN/None with empty string
+            repo_table_df['Comments'] = repo_table_df['Comments'].fillna('').astype(str).replace('nan', '').replace('None', '')
+        # Ensure Review Comment column exists and convert to string type
+        if 'Review Comment' not in repo_table_df.columns:
+            repo_table_df['Review Comment'] = ''
+        else:
+            # Convert Review Comment column to string, replacing NaN/None with empty string
+            repo_table_df['Review Comment'] = repo_table_df['Review Comment'].fillna('').astype(str).replace('nan', '').replace('None', '')
         repo_scan_loaded = True
         st.success(f"📄 Loaded existing repository scan: {len(repo_table_df)} components")
     except Exception as e:
@@ -581,6 +1327,16 @@ if REPO_SCANNER_AVAILABLE:
                 
                 if table:
                     repo_table_df = pd.DataFrame(table)
+                    # Ensure Review Comment column exists and is string type
+                    if 'Review Comment' not in repo_table_df.columns:
+                        repo_table_df['Review Comment'] = ''
+                    else:
+                        repo_table_df['Review Comment'] = repo_table_df['Review Comment'].fillna('').astype(str).replace('nan', '').replace('None', '')
+                    # Ensure Comments column exists and is string type
+                    if 'Comments' not in repo_table_df.columns:
+                        repo_table_df['Comments'] = ''
+                    else:
+                        repo_table_df['Comments'] = repo_table_df['Comments'].fillna('').astype(str).replace('nan', '').replace('None', '')
                     repo_scan_loaded = True
                     st.session_state['run_repo_scan'] = False
                     st.success(f"✅ Scan complete! Found {len(components)} component versions, {len(table)} compatibility checks.")
@@ -666,9 +1422,12 @@ if repo_scan_loaded and repo_table_df is not None and not repo_table_df.empty:
     
     # Display table with editable Comments column
     if not filtered_repo_df.empty:
-        # Ensure Comments column exists
+        # Ensure Comments column exists and convert to string type
         if 'Comments' not in filtered_repo_df.columns:
             filtered_repo_df['Comments'] = ''
+        else:
+            # Convert Comments column to string, replacing NaN/None with empty string
+            filtered_repo_df['Comments'] = filtered_repo_df['Comments'].fillna('').astype(str).replace('nan', '').replace('None', '')
         
         # Use data_editor for editable Comments column
         edited_df = st.data_editor(
@@ -723,6 +1482,193 @@ if repo_scan_loaded and repo_table_df is not None and not repo_table_df.empty:
         if error_count == 0 and warning_count == 0:
             st.success("✅ **All compatibility checks passed!**")
         
+        # Errors and Warnings Review Table
+        if error_count > 0 or warning_count > 0:
+            st.markdown("### 📋 Errors and Warnings Requiring Review")
+            
+            # Filter for errors and warnings only
+            issues_df = repo_table_df[
+                (repo_table_df['Compatibility Issues'].astype(str).str.contains('ERROR|MISMATCH|EOL|MIXED|WARNING', case=False, na=False)) &
+                (repo_table_df['Compatibility Issues'].astype(str) != 'OK')
+            ].copy()
+            
+            if not issues_df.empty:
+                # Ensure Review Comment column exists and convert to string type
+                if 'Review Comment' not in issues_df.columns:
+                    issues_df['Review Comment'] = ''
+                else:
+                    issues_df['Review Comment'] = issues_df['Review Comment'].fillna('').astype(str).replace('nan', '').replace('None', '')
+                if 'Review Comment' not in repo_table_df.columns:
+                    repo_table_df['Review Comment'] = ''
+                else:
+                    repo_table_df['Review Comment'] = repo_table_df['Review Comment'].fillna('').astype(str).replace('nan', '').replace('None', '')
+                
+                # Select relevant columns for display
+                display_columns = ['Component', 'Version Detected', 'Real Version', 'File', 
+                                 'Mapped Release', 'Compatibility Issues', 'Recommended Stack', 'Review Comment']
+                
+                # Filter to only show columns that exist
+                available_columns = [col for col in display_columns if col in issues_df.columns]
+                issues_display_df = issues_df[available_columns].copy()
+                
+                # Sort by severity (errors first, then warnings)
+                def severity_sort(row):
+                    issues = str(row.get('Compatibility Issues', '')).upper()
+                    if 'ERROR' in issues or 'MISMATCH' in issues or 'EOL' in issues:
+                        return 0  # Errors first
+                    elif 'WARNING' in issues or 'MIXED' in issues:
+                        return 1  # Warnings second
+                    return 2
+                
+                issues_display_df['_sort_order'] = issues_display_df.apply(severity_sort, axis=1)
+                issues_display_df = issues_display_df.sort_values('_sort_order').drop(columns=['_sort_order'])
+                
+                # Use data_editor for editable Review Comment column
+                edited_issues_df = st.data_editor(
+                    issues_display_df,
+                    use_container_width=True,
+                    hide_index=True,
+                    height=600,
+                    column_config={
+                        "Review Comment": st.column_config.TextColumn(
+                            "Review Comment",
+                            help="Add review notes, assign owners, or track follow-up actions",
+                            width="large"
+                        ),
+                        "Component": st.column_config.TextColumn(
+                            "Component",
+                            width="medium"
+                        ),
+                        "Compatibility Issues": st.column_config.TextColumn(
+                            "Compatibility Issues",
+                            width="medium"
+                        ),
+                        "File": st.column_config.TextColumn(
+                            "File",
+                            width="medium"
+                        )
+                    },
+                    disabled=[col for col in available_columns if col != 'Review Comment'],
+                    key="errors_warnings_review_editor"
+                )
+                
+                # Save button for Review Comments
+                if st.button("💾 Save Review Comments", key="save_errors_warnings_comments"):
+                    # Update the full dataframe with edited review comments
+                    if 'Review Comment' in edited_issues_df.columns:
+                        # Map edited comments back to full repo_table_df
+                        for idx, row in edited_issues_df.iterrows():
+                            # Find matching row in repo_table_df
+                            mask = (
+                                (repo_table_df['Component'] == row['Component']) &
+                                (repo_table_df['File'] == row.get('File', '')) &
+                                (repo_table_df['Compatibility Issues'].astype(str) == str(row.get('Compatibility Issues', '')))
+                            )
+                            if mask.any():
+                                repo_table_df.loc[mask, 'Review Comment'] = row.get('Review Comment', '')
+                        
+                        # Save to CSV
+                        csv_path = report_dir / "openstack_repo_compatibility.csv"
+                        repo_table_df.to_csv(csv_path, index=False)
+                        st.success("✅ Review comments saved successfully!")
+                
+                # Show breakdown by severity
+                st.markdown("#### Breakdown by Severity")
+                col1, col2 = st.columns(2)
+                with col1:
+                    issues_errors = len(issues_df[issues_df['Compatibility Issues'].astype(str).str.contains('ERROR|MISMATCH|EOL', case=False, na=False)])
+                    st.metric("❌ Errors Requiring Review", issues_errors)
+                with col2:
+                    issues_warnings = len(issues_df[issues_df['Compatibility Issues'].astype(str).str.contains('MIXED|WARNING', case=False, na=False)])
+                    st.metric("⚠️ Warnings Requiring Review", issues_warnings)
+        
+        # Incompatibilities and Reviews Table (HIDDEN)
+        # st.markdown("### 📋 Incompatibilities and Reviews Needed")
+        # 
+        # # Filter for errors and warnings only
+        # incompat_df = repo_table_df[
+        #     (repo_table_df['Compatibility Issues'].astype(str).str.contains('ERROR|MISMATCH|EOL|MIXED|WARNING', case=False, na=False)) &
+        #     (repo_table_df['Compatibility Issues'].astype(str) != 'OK')
+        # ].copy()
+        # 
+        # if not incompat_df.empty:
+        #     # Ensure Review Comment column exists
+        #     if 'Review Comment' not in incompat_df.columns:
+        #         incompat_df['Review Comment'] = ''
+        #     if 'Review Comment' not in repo_table_df.columns:
+        #         repo_table_df['Review Comment'] = ''
+        #     
+        #     # Select relevant columns for display
+        #     display_columns = ['Component', 'Version Detected', 'Real Version', 'File', 
+        #                      'Mapped Release', 'Compatibility Issues', 'Recommended Stack']
+        #     if 'Review Comment' not in display_columns:
+        #         display_columns.append('Review Comment')
+        #     
+        #     # Filter to only show columns that exist
+        #     available_columns = [col for col in display_columns if col in incompat_df.columns]
+        #     incompat_display_df = incompat_df[available_columns].copy()
+        #     
+        #     # Use data_editor for editable Review Comment column
+        #     edited_incompat_df = st.data_editor(
+        #         incompat_display_df,
+        #         use_container_width=True,
+        #         hide_index=True,
+        #         height=600,
+        #         column_config={
+        #             "Review Comment": st.column_config.TextColumn(
+        #                 "Review Comment",
+        #                 help="Add review notes, assign owners, or track follow-up actions",
+        #                 width="large"
+        #             ),
+        #             "Component": st.column_config.TextColumn(
+        #                 "Component",
+        #                 width="medium"
+        #             ),
+        #             "Compatibility Issues": st.column_config.TextColumn(
+        #                 "Compatibility Issues",
+        #                 width="medium"
+        #             ),
+        #             "File": st.column_config.TextColumn(
+        #                 "File",
+        #                 width="medium"
+        #             )
+        #         },
+        #         disabled=[col for col in available_columns if col != 'Review Comment'],
+        #         key="incompatibilities_editor"
+        #     )
+        #     
+        #     # Save button for Review Comments
+        #     if st.button("💾 Save Review Comments", key="save_incompat_comments"):
+        #         # Update the full dataframe with edited review comments
+        #         if 'Review Comment' in edited_incompat_df.columns:
+        #             # Map edited comments back to full repo_table_df
+        #             for idx, row in edited_incompat_df.iterrows():
+        #                 # Find matching row in repo_table_df
+        #                 mask = (
+        #                     (repo_table_df['Component'] == row['Component']) &
+        #                     (repo_table_df['File'] == row.get('File', '')) &
+        #                     (repo_table_df['Compatibility Issues'].astype(str) == str(row.get('Compatibility Issues', '')))
+        #                 )
+        #                 if mask.any():
+        #                     repo_table_df.loc[mask, 'Review Comment'] = row.get('Review Comment', '')
+        #             
+        #             # Save to CSV
+        #             csv_path = report_dir / "openstack_repo_compatibility.csv"
+        #             repo_table_df.to_csv(csv_path, index=False)
+        #             st.success("✅ Review comments saved successfully!")
+        #     
+        #     # Show breakdown by severity
+        #     st.markdown("#### Breakdown by Severity")
+        #     col1, col2 = st.columns(2)
+        #     with col1:
+        #         incompat_errors = len(incompat_df[incompat_df['Compatibility Issues'].astype(str).str.contains('ERROR|MISMATCH|EOL', case=False, na=False)])
+        #         st.metric("❌ Errors Requiring Review", incompat_errors)
+        #     with col2:
+        #         incompat_warnings = len(incompat_df[incompat_df['Compatibility Issues'].astype(str).str.contains('MIXED|WARNING', case=False, na=False)])
+        #         st.metric("⚠️ Warnings Requiring Review", incompat_warnings)
+        # else:
+        #     st.info("✅ No incompatibilities found! All components are compatible.")
+        
         # Export options
         st.markdown("### 💾 Export Options")
         col1, col2, col3 = st.columns(3)
@@ -758,439 +1704,269 @@ elif not repo_scan_loaded:
     st.info("💡 Click '🔄 Run Repository Scan' to scan the repository for all OpenStack component versions and compatibility issues.")
 
 # ---------------------------------------------------
-# GitHub Version Resolution (Resolve Real Versions from GitHub)
+# OpenStack Compatibility Analysis (Legacy) - HIDDEN
 # ---------------------------------------------------
-st.markdown("## 🔗 GitHub Version Resolution")
-
-# Initialize session state
-if 'resolve_github_versions' not in st.session_state:
-    st.session_state['resolve_github_versions'] = False
-
-# Check for existing resolved versions
-github_resolved_csv = report_dir / "openstack_github_resolved_versions.csv"
-github_resolved_json = report_dir / "openstack_github_resolved_versions.json"
-
-github_resolved_loaded = False
-github_resolved_df = None
-
-if github_resolved_csv.exists():
-    try:
-        github_resolved_df = pd.read_csv(github_resolved_csv)
-        github_resolved_loaded = True
-        st.success(f"📄 Loaded existing GitHub-resolved versions: {len(github_resolved_df)} components")
-    except Exception as e:
-        pass
-
-if GITHUB_RESOLVER_AVAILABLE:
-    st.markdown("### Resolve Real Versions from GitHub")
-    st.caption("Extracts commit SHAs from Component Inventory Table, queries GitHub API to find actual tags/versions, and determines release train compatibility. Works without authentication (60 requests/hour limit).")
-    
-    # Check if Component Inventory is available
-    if inventory_loaded and inv_df is not None and not inv_df.empty:
-        if st.button("🔗 Resolve from GitHub", type="primary"):
-            st.session_state['resolve_github_versions'] = True
-    else:
-        st.info("⚠️ Component Inventory Table required. Please run '🔄 Run New Scan' in the Component Version Inventory section first.")
-    
-    if st.session_state.get('resolve_github_versions', False):
-        with st.spinner("Resolving versions from GitHub API... This may take several minutes due to rate limits."):
-            try:
-                repo_path = os.getcwd()
-                
-                # Use Component Inventory Table
-                if inventory_loaded and inv_df is not None and not inv_df.empty:
-                    # Convert DataFrame to list of dicts
-                    inventory_table = inv_df.to_dict('records')
-                    
-                    # Resolve from GitHub (no token - uses public API)
-                    resolver = OpenStackGitHubVersionResolver(repo_path=repo_path, github_token=None)
-                    resolved = resolver.resolve_component_inventory(inventory_table)
-                    
-                    if resolved:
-                        # Convert to DataFrame with new columns
-                        github_resolved_df = pd.DataFrame(resolved)
-                        github_resolved_loaded = True
-                        st.session_state['resolve_github_versions'] = False
-                        st.success(f"✅ Resolved {len(resolved)} component versions from GitHub")
-                        
-                        # Auto-save
-                        report_dir.mkdir(parents=True, exist_ok=True)
-                        resolver.export_table(resolved, report_dir)
-                else:
-                    st.error("Component Inventory Table not available. Please run a scan first.")
-                    st.session_state['resolve_github_versions'] = False
-            except Exception as e:
-                st.error(f"Error resolving versions from GitHub: {str(e)}")
-                st.exception(e)
-                st.session_state['resolve_github_versions'] = False
-                if "rate limit" in str(e).lower() or "403" in str(e):
-                    st.warning("⚠️ GitHub API rate limit exceeded (60 requests/hour for unauthenticated). The resolver will retry with delays. For faster resolution, you can set GITHUB_TOKEN environment variable, but it's not required.")
-else:
-    if not GITHUB_RESOLVER_AVAILABLE:
-        st.warning("⚠️ GitHub version resolver not available. Ensure openstack_github_version_resolver.py is in the genestack-intelligence directory.")
-
-# Display resolved versions if available
-if github_resolved_loaded and github_resolved_df is not None and not github_resolved_df.empty:
-    st.markdown("### GitHub-Resolved Version Table")
-    
-    # Display with filters
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        status_filter = st.multiselect(
-            "Filter by Status",
-            options=sorted([str(x) for x in github_resolved_df['Compatibility Status'].unique() if pd.notna(x)]),
-            default=sorted([str(x) for x in github_resolved_df['Compatibility Status'].unique() if pd.notna(x)])
-        )
-        with col2:
-            train_filter = st.multiselect(
-                "Filter by Release Train",
-                options=sorted([str(x) for x in github_resolved_df['Release Train'].unique() if pd.notna(x) and str(x) != 'Unknown']),
-                default=sorted([str(x) for x in github_resolved_df['Release Train'].unique() if pd.notna(x) and str(x) != 'Unknown'])
-            )
-    with col3:
-        search_term = st.text_input("🔍 Search Component", "", key="github_search")
-    
-    # Apply filters
-    filtered_github_df = github_resolved_df[
-        (github_resolved_df['Compatibility Status'].astype(str).isin(status_filter)) &
-        (github_resolved_df['Release Train'].astype(str).isin(train_filter))
-    ]
-    if search_term:
-        filtered_github_df = filtered_github_df[
-            filtered_github_df['Component'].str.contains(search_term, case=False, na=False) |
-            filtered_github_df['Real OpenStack Version'].astype(str).str.contains(search_term, case=False, na=False) |
-            filtered_github_df['Version in Repo'].astype(str).str.contains(search_term, case=False, na=False)
-        ]
-    
-    # Display table with all new columns
-    if not filtered_github_df.empty:
-        # Select columns to display
-        display_columns = ['Component', 'Version in Repo', 'Real OpenStack Version', 
-                          'Release Train', 'Compatibility Status', 'Recommended Version',
-                          'GitHub Commit URL', 'GitHub Tag URL', 'Release Notes URL']
-        
-        # Filter to only show columns that exist
-        available_columns = [col for col in display_columns if col in filtered_github_df.columns]
-        display_df = filtered_github_df[available_columns]
-        
-        st.dataframe(
-            display_df,
-            use_container_width=True,
-            hide_index=True,
-            height=600
-        )
-        
-        # Statistics
-        st.markdown("### 📊 Resolution Statistics")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            compatible_count = len(github_resolved_df[github_resolved_df['Compatibility Status'].astype(str).str.contains('✔', na=False)])
-            st.metric("✔ Compatible", compatible_count)
-        with col2:
-            incompatible_count = len(github_resolved_df[github_resolved_df['Compatibility Status'].astype(str).str.contains('❌', na=False)])
-            st.metric("❌ Incompatible", incompatible_count)
-        with col3:
-            unique_trains = len([x for x in github_resolved_df['Release Train'].unique() if pd.notna(x) and str(x) != 'Unknown'])
-            st.metric("Release Trains", unique_trains)
-        with col4:
-            st.metric("Total Components", len(github_resolved_df))
-        
-        # Show summary
-        if incompatible_count > 0:
-            st.error(f"🚨 **{incompatible_count} incompatible component(s) found!** Review recommended versions.")
-        if compatible_count == len(github_resolved_df):
-            st.success("✅ **All components are compatible!**")
-        
-        # Export options
-        st.markdown("### 💾 Export Options")
-        col1, col2 = st.columns(2)
-        with col1:
-            csv_data = github_resolved_df.to_csv(index=False)
-            st.download_button(
-                label="📥 Download CSV",
-                data=csv_data,
-                file_name=f"openstack-github-resolved-{datetime.now().strftime('%Y%m%d')}.csv",
-                mime="text/csv"
-            )
-        with col2:
-            if github_resolved_json.exists():
-                with open(github_resolved_json, 'r') as f:
-                    json_data = f.read()
-                st.download_button(
-                    label="📥 Download JSON",
-                    data=json_data,
-                    file_name=f"openstack-github-resolved-{datetime.now().strftime('%Y%m%d')}.json",
-                    mime="application/json"
-                )
-    else:
-        st.warning("No components match the current filters.")
-elif not github_resolved_loaded:
-    st.info("💡 Click '🔗 Resolve from GitHub' to query GitHub API for actual component versions and release trains. Works without authentication (public API, 60 requests/hour).")
+# st.markdown("## 🔍 OpenStack Compatibility Analysis (Detailed)")
+# 
+# # Initialize session state
+# if 'run_compat_analysis' not in st.session_state:
+#     st.session_state['run_compat_analysis'] = False
+# 
+# # Check for existing compatibility report
+# compat_file = report_dir / "openstack-compat-table.md"
+# compat_csv = report_dir / "openstack-compat-table.csv"
+# 
+# compat_loaded = False
+# compat_df = None
+# 
+# if compat_csv.exists():
+#     try:
+#         compat_df = pd.read_csv(compat_csv)
+#         compat_loaded = True
+#         st.success(f"📄 Loaded existing compatibility analysis: {len(compat_df)} checks")
+#     except Exception as e:
+#         pass
+# 
+# if COMPATIBILITY_ANALYZER_AVAILABLE:
+#     col1, col2 = st.columns([3, 1])
+#     with col1:
+#         st.markdown("### Analyze OpenStack Component Compatibility")
+#         st.caption("Checks release alignment, API microversions, container image alignment, Python library compatibility, and Kubernetes API compatibility.")
+#     with col2:
+#         if st.button("🔄 Run Compatibility Analysis", type="primary"):
+#             st.session_state['run_compat_analysis'] = True
+#     
+#     if st.session_state.get('run_compat_analysis', False):
+#         with st.spinner("Analyzing OpenStack compatibility... This may take a minute."):
+#             try:
+#                 repo_path = os.getcwd()
+#                 analyzer = OpenStackCompatibilityAnalyzer(repo_path=repo_path)
+#                 compatibility_table = analyzer.analyze()
+#                 
+#                 if compatibility_table:
+#                     compat_df = pd.DataFrame(compatibility_table)
+#                     compat_loaded = True
+#                     st.session_state['run_compat_analysis'] = False
+#                     st.success(f"✅ Analysis complete! Found {len(compat_df)} compatibility checks.")
+#                     
+#                     # Auto-save to reports
+#                     report_dir.mkdir(parents=True, exist_ok=True)
+#                     analyzer.export_to_markdown(report_dir / "openstack-compat-table.md")
+#                     analyzer.export_to_csv(report_dir / "openstack-compat-table.csv")
+#             except Exception as e:
+#                 st.error(f"Error analyzing compatibility: {str(e)}")
+#                 st.exception(e)
+#                 st.session_state['run_compat_analysis'] = False
+# else:
+#     st.warning("⚠️ Compatibility analyzer not available. Ensure openstack_compatibility.py is in the genestack-intelligence directory.")
+# 
+# # Display compatibility table if available
+# if compat_loaded and compat_df is not None and not compat_df.empty:
+#     st.markdown("### Compatibility Status Table")
+#     
+#     # Color code by status
+#     def color_status(val):
+#         if val == "OK":
+#             return 'background-color: #ccffcc'  # Green
+#         elif val == "WARNING":
+#             return 'background-color: #fff4cc'  # Yellow
+#         elif val == "ERROR":
+#             return 'background-color: #ffcccc'  # Red
+#         return ''
+#     
+#     # Apply styling
+#     styled_compat_df = compat_df.style.applymap(color_status, subset=['Status'])
+#     
+#     # Display with filters
+#     col1, col2 = st.columns(2)
+#     with col1:
+#         status_filter = st.multiselect(
+#             "Filter by Status",
+#             options=['OK', 'WARNING', 'ERROR'],
+#             default=['ERROR', 'WARNING', 'OK']
+#         )
+#     with col2:
+#         search_term = st.text_input("🔍 Search Component", "", key="compat_search")
+#     
+#     # Apply filters
+#     filtered_compat_df = compat_df[compat_df['Status'].isin(status_filter)]
+#     if search_term:
+#         filtered_compat_df = filtered_compat_df[
+#             filtered_compat_df['Component'].str.contains(search_term, case=False, na=False) |
+#             filtered_compat_df['Notes'].astype(str).str.contains(search_term, case=False, na=False)
+#         ]
+#     
+#     # Display table
+#     if not filtered_compat_df.empty:
+#         # Create styled version for display
+#         display_df = filtered_compat_df.copy()
+#         
+#         st.dataframe(
+#             display_df,
+#             use_container_width=True,
+#             hide_index=True,
+#             height=600
+#         )
+#         
+#         # Statistics
+#         st.markdown("### 📊 Compatibility Statistics")
+#         col1, col2, col3, col4 = st.columns(4)
+#         with col1:
+#             ok_count = len(compat_df[compat_df['Status'] == 'OK'])
+#             st.metric("✅ OK", ok_count, delta=None)
+#         with col2:
+#             warning_count = len(compat_df[compat_df['Status'] == 'WARNING'])
+#             st.metric("⚠️ Warnings", warning_count, delta=None)
+#         with col3:
+#             error_count = len(compat_df[compat_df['Status'] == 'ERROR'])
+#             st.metric("❌ Errors", error_count, delta=None)
+#         with col4:
+#             total_checks = len(compat_df)
+#             st.metric("Total Checks", total_checks)
+#         
+#         # Show summary
+#         if error_count > 0:
+#             st.error(f"🚨 **{error_count} compatibility error(s) found!** Review the table above for details.")
+#         if warning_count > 0:
+#             st.warning(f"⚠️ **{warning_count} compatibility warning(s) found.** Review recommended.")
+#         if error_count == 0 and warning_count == 0:
+#             st.success("✅ **All compatibility checks passed!**")
+#         
+#         # Export options
+#         st.markdown("### 💾 Export Options")
+#         col1, col2 = st.columns(2)
+#         with col1:
+#             csv = compat_df.to_csv(index=False)
+#             st.download_button(
+#                 label="📥 Download Full CSV",
+#                 data=csv,
+#                 file_name=f"openstack-compat-{datetime.now().strftime('%Y%m%d')}.csv",
+#                 mime="text/csv"
+#             )
+#         with col2:
+#             filtered_csv = filtered_compat_df.to_csv(index=False)
+#             st.download_button(
+#                 label="📥 Download Filtered CSV",
+#                 data=filtered_csv,
+#                 file_name=f"openstack-compat-filtered-{datetime.now().strftime('%Y%m%d')}.csv",
+#                 mime="text/csv"
+#             )
+#     else:
+#         st.warning("No compatibility checks match the current filters.")
+# elif not compat_loaded:
+#     st.info("💡 Click '🔄 Run Compatibility Analysis' to analyze OpenStack component compatibility, or ensure a previous analysis exists in the reports directory.")
 
 # ---------------------------------------------------
-# OpenStack Compatibility Analysis (Legacy)
+# Top 10 Modified Files per Branch (COMMENTED OUT - MOVED TO TOP MOVING PARTS & UPDATES)
 # ---------------------------------------------------
-st.markdown("## 🔍 OpenStack Compatibility Analysis (Detailed)")
-
-# Initialize session state
-if 'run_compat_analysis' not in st.session_state:
-    st.session_state['run_compat_analysis'] = False
-
-# Check for existing compatibility report
-compat_file = report_dir / "openstack-compat-table.md"
-compat_csv = report_dir / "openstack-compat-table.csv"
-
-compat_loaded = False
-compat_df = None
-
-if compat_csv.exists():
-    try:
-        compat_df = pd.read_csv(compat_csv)
-        compat_loaded = True
-        st.success(f"📄 Loaded existing compatibility analysis: {len(compat_df)} checks")
-    except Exception as e:
-        pass
-
-if COMPATIBILITY_ANALYZER_AVAILABLE:
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown("### Analyze OpenStack Component Compatibility")
-        st.caption("Checks release alignment, API microversions, container image alignment, Python library compatibility, and Kubernetes API compatibility.")
-    with col2:
-        if st.button("🔄 Run Compatibility Analysis", type="primary"):
-            st.session_state['run_compat_analysis'] = True
-    
-    if st.session_state.get('run_compat_analysis', False):
-        with st.spinner("Analyzing OpenStack compatibility... This may take a minute."):
-            try:
-                repo_path = os.getcwd()
-                analyzer = OpenStackCompatibilityAnalyzer(repo_path=repo_path)
-                compatibility_table = analyzer.analyze()
-                
-                if compatibility_table:
-                    compat_df = pd.DataFrame(compatibility_table)
-                    compat_loaded = True
-                    st.session_state['run_compat_analysis'] = False
-                    st.success(f"✅ Analysis complete! Found {len(compat_df)} compatibility checks.")
-                    
-                    # Auto-save to reports
-                    report_dir.mkdir(parents=True, exist_ok=True)
-                    analyzer.export_to_markdown(report_dir / "openstack-compat-table.md")
-                    analyzer.export_to_csv(report_dir / "openstack-compat-table.csv")
-            except Exception as e:
-                st.error(f"Error analyzing compatibility: {str(e)}")
-                st.exception(e)
-                st.session_state['run_compat_analysis'] = False
-else:
-    st.warning("⚠️ Compatibility analyzer not available. Ensure openstack_compatibility.py is in the genestack-intelligence directory.")
-
-# Display compatibility table if available
-if compat_loaded and compat_df is not None and not compat_df.empty:
-    st.markdown("### Compatibility Status Table")
-    
-    # Color code by status
-    def color_status(val):
-        if val == "OK":
-            return 'background-color: #ccffcc'  # Green
-        elif val == "WARNING":
-            return 'background-color: #fff4cc'  # Yellow
-        elif val == "ERROR":
-            return 'background-color: #ffcccc'  # Red
-        return ''
-    
-    # Apply styling
-    styled_compat_df = compat_df.style.applymap(color_status, subset=['Status'])
-    
-    # Display with filters
-    col1, col2 = st.columns(2)
-    with col1:
-        status_filter = st.multiselect(
-            "Filter by Status",
-            options=['OK', 'WARNING', 'ERROR'],
-            default=['ERROR', 'WARNING', 'OK']
-        )
-    with col2:
-        search_term = st.text_input("🔍 Search Component", "", key="compat_search")
-    
-    # Apply filters
-    filtered_compat_df = compat_df[compat_df['Status'].isin(status_filter)]
-    if search_term:
-        filtered_compat_df = filtered_compat_df[
-            filtered_compat_df['Component'].str.contains(search_term, case=False, na=False) |
-            filtered_compat_df['Notes'].astype(str).str.contains(search_term, case=False, na=False)
-        ]
-    
-    # Display table
-    if not filtered_compat_df.empty:
-        # Create styled version for display
-        display_df = filtered_compat_df.copy()
-        
-        st.dataframe(
-            display_df,
-            use_container_width=True,
-            hide_index=True,
-            height=600
-        )
-        
-        # Statistics
-        st.markdown("### 📊 Compatibility Statistics")
-        col1, col2, col3, col4 = st.columns(4)
-        with col1:
-            ok_count = len(compat_df[compat_df['Status'] == 'OK'])
-            st.metric("✅ OK", ok_count, delta=None)
-        with col2:
-            warning_count = len(compat_df[compat_df['Status'] == 'WARNING'])
-            st.metric("⚠️ Warnings", warning_count, delta=None)
-        with col3:
-            error_count = len(compat_df[compat_df['Status'] == 'ERROR'])
-            st.metric("❌ Errors", error_count, delta=None)
-        with col4:
-            total_checks = len(compat_df)
-            st.metric("Total Checks", total_checks)
-        
-        # Show summary
-        if error_count > 0:
-            st.error(f"🚨 **{error_count} compatibility error(s) found!** Review the table above for details.")
-        if warning_count > 0:
-            st.warning(f"⚠️ **{warning_count} compatibility warning(s) found.** Review recommended.")
-        if error_count == 0 and warning_count == 0:
-            st.success("✅ **All compatibility checks passed!**")
-        
-        # Export options
-        st.markdown("### 💾 Export Options")
-        col1, col2 = st.columns(2)
-        with col1:
-            csv = compat_df.to_csv(index=False)
-            st.download_button(
-                label="📥 Download Full CSV",
-                data=csv,
-                file_name=f"openstack-compat-{datetime.now().strftime('%Y%m%d')}.csv",
-                mime="text/csv"
-            )
-        with col2:
-            filtered_csv = filtered_compat_df.to_csv(index=False)
-            st.download_button(
-                label="📥 Download Filtered CSV",
-                data=filtered_csv,
-                file_name=f"openstack-compat-filtered-{datetime.now().strftime('%Y%m%d')}.csv",
-                mime="text/csv"
-            )
-    else:
-        st.warning("No compatibility checks match the current filters.")
-elif not compat_loaded:
-    st.info("💡 Click '🔄 Run Compatibility Analysis' to analyze OpenStack component compatibility, or ensure a previous analysis exists in the reports directory.")
+# st.markdown("## 🗂 Top 10 Modified Files per Branch")
+# if branch_files_detail_df.empty:
+#     st.info("No file change data available for the selected branches.")
+# else:
+#     branch_files_display = branch_files_detail_df.copy()
+#     branch_files_display["Changes"] = branch_files_display["Changes"].astype(int)
+#     render_editable_table(branch_files_display, key="modified_files_table")
 
 # ---------------------------------------------------
-# Top 10 Modified Files per Branch (Surfaced near top for screenshot)
+# GitHub-style Contribution Calendar (COMMENTED OUT - MOVED TO TOP MOVING PARTS & UPDATES)
 # ---------------------------------------------------
-st.markdown("## 🗂 Top 10 Modified Files per Branch")
-if branch_files_detail_df.empty:
-    st.info("No file change data available for the selected branches.")
-else:
-    branch_files_display = branch_files_detail_df.copy()
-    branch_files_display["Changes"] = branch_files_display["Changes"].astype(int)
-    render_editable_table(branch_files_display, key="modified_files_table")
-
-# ---------------------------------------------------
-# GitHub-style Contribution Calendar (tabular with bars)
-# ---------------------------------------------------
-st.markdown("## 🔥 GitHub-Style Contribution Calendar (Last 12 Months)")
-
-calendar_raw = git("git log --pretty=format:'%an|%ad' --date=short")
-calendar_records = []
-for line in calendar_raw.split("\n"):
-    if "|" not in line:
-        continue
-    author, date_str = line.split("|", 1)
-    calendar_records.append([author.strip(), date_str.strip(), 1])
-
-if calendar_records:
-    calendar_df = pd.DataFrame(calendar_records, columns=["author", "date", "commits"])
-    calendar_df["date"] = pd.to_datetime(calendar_df["date"])
-
-    end_date = pd.Timestamp.today().normalize()
-    start_date = end_date - pd.Timedelta(days=365)
-    calendar_df = calendar_df[(calendar_df["date"] >= start_date) & (calendar_df["date"] <= end_date)]
-
-    if calendar_df.empty:
-        st.info("No commit activity found for the last 12 months.")
-    else:
-        calendar_df["week"] = calendar_df["date"].dt.to_period("W")
-        week_range = pd.period_range(start=start_date.to_period("W"), end=end_date.to_period("W"), freq="W")
-
-        weekly = calendar_df.groupby(["author", "week"])["commits"].sum().unstack(fill_value=0)
-        weekly = weekly.reindex(columns=week_range, fill_value=0)
-        weekly["total"] = weekly.sum(axis=1)
-        weekly = weekly.sort_values("total", ascending=False).drop(columns=["total"])
-
-        week_labels = [period.start_time.strftime("%Y-%m-%d") for period in weekly.columns]
-        display_df = weekly.copy().astype(int)
-        display_df.columns = week_labels
-
-        bar_color = "#2563eb"
-        styled_calendar = (
-            display_df.style
-            .format("{:.0f}")
-            .bar(axis=1, color=bar_color)
-        )
-        st.dataframe(styled_calendar, width="stretch")
-else:
-    st.info("No commit history found to build the calendar.")
-
-# ---------------------------------------------------
-# Tables Section
-# ---------------------------------------------------
-st.markdown("## 🌿 Top 10 Active Branches")
-render_editable_table(branch_df, key="top_branches_table")
-
-st.markdown("## 🔄 Last 10 PRs (Merged)")
-if pr_df.empty:
-    st.info("No merged PR history available.")
-else:
-    render_editable_table(pr_df, key="pr_table")
+# st.markdown("## 🔥 GitHub-Style Contribution Calendar (Last 12 Months)")
+# 
+# calendar_raw = git("git log --pretty=format:'%an|%ad' --date=short")
+# calendar_records = []
+# for line in calendar_raw.split("\n"):
+#     if "|" not in line:
+#         continue
+#     author, date_str = line.split("|", 1)
+#     calendar_records.append([author.strip(), date_str.strip(), 1])
+# 
+# if calendar_records:
+#     calendar_df = pd.DataFrame(calendar_records, columns=["author", "date", "commits"])
+#     calendar_df["date"] = pd.to_datetime(calendar_df["date"])
+# 
+#     end_date = pd.Timestamp.today().normalize()
+#     start_date = end_date - pd.Timedelta(days=365)
+#     calendar_df = calendar_df[(calendar_df["date"] >= start_date) & (calendar_df["date"] <= end_date)]
+# 
+#     if calendar_df.empty:
+#         st.info("No commit activity found for the last 12 months.")
+#     else:
+#         calendar_df["week"] = calendar_df["date"].dt.to_period("W")
+#         week_range = pd.period_range(start=start_date.to_period("W"), end=end_date.to_period("W"), freq="W")
+# 
+#         weekly = calendar_df.groupby(["author", "week"])["commits"].sum().unstack(fill_value=0)
+#         weekly = weekly.reindex(columns=week_range, fill_value=0)
+#         weekly["total"] = weekly.sum(axis=1)
+#         weekly = weekly.sort_values("total", ascending=False).drop(columns=["total"])
+# 
+#         week_labels = [period.start_time.strftime("%Y-%m-%d") for period in weekly.columns]
+#         display_df = weekly.copy().astype(int)
+#         display_df.columns = week_labels
+# 
+#         bar_color = "#2563eb"
+#         styled_calendar = (
+#             display_df.style
+#             .format("{:.0f}")
+#             .bar(axis=1, color=bar_color)
+#         )
+#         st.dataframe(styled_calendar, width="stretch")
+# else:
+#     st.info("No commit history found to build the calendar.")
+# 
+# # ---------------------------------------------------
+# # Tables Section (COMMENTED OUT - MOVED TO TOP MOVING PARTS & UPDATES)
+# # ---------------------------------------------------
+# st.markdown("## 🌿 Top 10 Active Branches")
+# render_editable_table(branch_df, key="top_branches_table")
+# 
+# st.markdown("## 🔄 Last 10 PRs (Merged)")
+# if pr_df.empty:
+#     st.info("No merged PR history available.")
+# else:
+#     render_editable_table(pr_df, key="pr_table")
 
 # ---------------------------------------------------
-# AI Analysis (Mockup) — Top File Trends & Risks
+# AI Analysis (Mockup) — Top File Trends & Risks (COMMENTED OUT - MOVED TO SO WHAT : AI FINDINGS)
 # ---------------------------------------------------
-st.markdown("## 🤖 AI Analysis (Mockup) — Top Modified Files & Issue Trends")
-st.caption("Real AI agent analysis coming soon. All tables are editable for team notes.")
-
-ai_insights = []
-insights_df = pd.DataFrame()
-
-if file_df.empty:
-    st.info("No file change data to analyze.")
-else:
-    ai_insights = [analyze_file_risk(row["File"], row["Changes"]) for _, row in file_df.iterrows()]
-    insights_df = pd.DataFrame(ai_insights)
-    insights_df.rename(columns={"file": "File", "changes": "Changes", "issues": "Issues", "suggestion": "Suggested Action"}, inplace=True)
-    insights_df["Changes"] = insights_df["Changes"].astype(int)
-    render_editable_table(insights_df, key="ai_insights_table")
-
-    issue_records = []
-    for _, row in insights_df.iterrows():
-        for issue in [item.strip() for item in row["Issues"].split(",")]:
-            if issue:
-                issue_records.append({"Issue": issue, "File": row["File"]})
-
-    st.markdown("### Issue Trend Summary")
-    if issue_records:
-        issue_df = pd.DataFrame(issue_records)
-        issue_summary_df = (
-            issue_df.groupby("Issue")
-            .agg(
-                Files_Concerned=("File", lambda x: ", ".join(sorted(set(x)))),
-                Files_Impacted=("File", "nunique"),
-            )
-            .reset_index()
-        )
-        render_editable_table(issue_summary_df, key="issue_summary_table")
-    else:
-        st.info("No issue trends detected yet.")
-
-    st.markdown("### Suggested Actions")
-    suggested_actions_df = insights_df[["File", "Suggested Action"]]
-    render_editable_table(suggested_actions_df, key="suggested_actions_table")
+# st.markdown("## 🤖 AI Analysis (Mockup) — Top Modified Files & Issue Trends")
+# st.caption("Real AI agent analysis coming soon. All tables are editable for team notes.")
+# 
+# ai_insights = []
+# insights_df = pd.DataFrame()
+# 
+# if file_df.empty:
+#     st.info("No file change data to analyze.")
+# else:
+#     ai_insights = [analyze_file_risk(row["File"], row["Changes"]) for _, row in file_df.iterrows()]
+#     insights_df = pd.DataFrame(ai_insights)
+#     insights_df.rename(columns={"file": "File", "changes": "Changes", "issues": "Issues", "suggestion": "Suggested Action"}, inplace=True)
+#     insights_df["Changes"] = insights_df["Changes"].astype(int)
+#     render_editable_table(insights_df, key="ai_insights_table")
+# 
+#     issue_records = []
+#     for _, row in insights_df.iterrows():
+#         for issue in [item.strip() for item in row["Issues"].split(",")]:
+#             if issue:
+#                 issue_records.append({"Issue": issue, "File": row["File"]})
+# 
+#     st.markdown("### Issue Trend Summary")
+#     if issue_records:
+#         issue_df = pd.DataFrame(issue_records)
+#         issue_summary_df = (
+#             issue_df.groupby("Issue")
+#             .agg(
+#                 Files_Concerned=("File", lambda x: ", ".join(sorted(set(x)))),
+#                 Files_Impacted=("File", "nunique"),
+#             )
+#             .reset_index()
+#         )
+#         render_editable_table(issue_summary_df, key="issue_summary_table")
+#     else:
+#         st.info("No issue trends detected yet.")
+# 
+#     st.markdown("### Suggested Actions")
+#     suggested_actions_df = insights_df[["File", "Suggested Action"]]
+#     render_editable_table(suggested_actions_df, key="suggested_actions_table")
 
 # ---------------------------------------------------
 # Engineering Risk Summary
@@ -1235,30 +2011,325 @@ if not insights_df.empty:
     )
 
 # ---------------------------------------------------
-# AI Insights
+# SO WHAT : AI Findings
 # ---------------------------------------------------
-st.markdown("## 🔮 AI Suggested Insights")
+st.markdown("## 🔍 SO WHAT : AI Findings")
 
-insights = []
+# AI Analysis (Mockup) — Top Modified Files & Issue Trends
+st.markdown("### 🤖 AI Analysis (Mockup) — Top Modified Files & Issue Trends")
+st.caption("Real AI agent analysis coming soon. All tables are editable for team notes.")
 
-# Stale branches
+# Compute AI insights if not already done
+if file_df.empty:
+    st.info("No file change data to analyze.")
+else:
+    # Only compute if insights_df is empty (not already computed)
+    if insights_df.empty:
+        ai_insights = [analyze_file_risk(row["File"], row["Changes"]) for _, row in file_df.iterrows()]
+        insights_df = pd.DataFrame(ai_insights)
+        insights_df.rename(columns={"file": "File", "changes": "Changes", "issues": "Issues", "suggestion": "Suggested Action"}, inplace=True)
+        insights_df["Changes"] = insights_df["Changes"].astype(int)
+    
+    render_editable_table(insights_df, key="ai_insights_table_moved")
+
+    issue_records = []
+    for _, row in insights_df.iterrows():
+        for issue in [item.strip() for item in row["Issues"].split(",")]:
+            if issue:
+                issue_records.append({"Issue": issue, "File": row["File"]})
+
+    st.markdown("### Issue Trend Summary")
+    if issue_records:
+        issue_df = pd.DataFrame(issue_records)
+        issue_summary_df = (
+            issue_df.groupby("Issue")
+            .agg(
+                Files_Concerned=("File", lambda x: ", ".join(sorted(set(x)))),
+                Files_Impacted=("File", "nunique"),
+            )
+            .reset_index()
+        )
+        render_editable_table(issue_summary_df, key="issue_summary_table_moved")
+    else:
+        st.info("No issue trends detected yet.")
+
+    st.markdown("### Suggested Actions")
+    suggested_actions_df = insights_df[["File", "Suggested Action"]]
+    render_editable_table(suggested_actions_df, key="suggested_actions_table_moved")
+
+# ---------------------------------------------------
+# What Now ? - Recommended Actions and Key Insights
+# ---------------------------------------------------
+st.markdown("## ❓ What Now ?")
+
+# Gauges for Key Metrics - Mercedes Style Big Gauges (COMMENTED OUT - MOVED TO DETAILED CONTRIBUTION BREAKDOWN)
+# st.markdown("### 📊 Key Metrics Overview (Mercedes-Style Gauges)")
+# 
+# # Compute actual percentages from metrics
+# top5_files_percent = 0
+# top5_files_current = 0
+# top5_files_total = 0
+# 
+# top5_contrib_percent = 0
+# top5_contrib_current = 0
+# top5_contrib_total = 0
+# 
+# top5_branches_percent = 0
+# top5_branches_current = 0
+# top5_branches_total = 0
+# 
+# # Calculate Top 5 Files percentage
+# if not file_df.empty:
+#     top5_files_total = file_df['Changes'].sum()
+#     top5_files_current = file_df.head(5)['Changes'].sum()
+#     if top5_files_total > 0:
+#         top5_files_percent = round((top5_files_current / top5_files_total) * 100, 1)
+# 
+# # Calculate Top 5 Contributors percentage
+# if not contrib_df.empty:
+#     top5_contrib_total = contrib_df['Commits'].sum()
+#     top5_contrib_current = contrib_df.head(5)['Commits'].sum()
+#     if top5_contrib_total > 0:
+#         top5_contrib_percent = round((top5_contrib_current / top5_contrib_total) * 100, 1)
+# 
+# # Calculate Top 5 Branches percentage
+# if not branch_df.empty:
+#     top5_branches_total = branch_df['Commits'].sum()
+#     top5_branches_current = branch_df.head(5)['Commits'].sum()
+#     if top5_branches_total > 0:
+#         top5_branches_percent = round((top5_branches_current / top5_branches_total) * 100, 1)
+# 
+# # Render the 3 Mercedes-style gauges in 3 columns
+# if PLOTLY_AVAILABLE:
+#     col1, col2, col3 = st.columns(3)
+#     
+#     with col1:
+#         if top5_files_total > 0:
+#             st.plotly_chart(
+#                 mercedes_gauge("Top 5 Files", top5_files_percent, int(top5_files_current), int(top5_files_total)),
+#                 use_container_width=True
+#             )
+#         else:
+#             st.info("No file data")
+#     
+#     with col2:
+#         if top5_contrib_total > 0:
+#             st.plotly_chart(
+#                 mercedes_gauge("Top 5 Contributors", top5_contrib_percent, int(top5_contrib_current), int(top5_contrib_total)),
+#                 use_container_width=True
+#             )
+#         else:
+#             st.info("No contributor data")
+#     
+#     with col3:
+#         if top5_branches_total > 0:
+#             st.plotly_chart(
+#                 mercedes_gauge("Top 5 Branches", top5_branches_percent, int(top5_branches_current), int(top5_branches_total)),
+#                 use_container_width=True
+#             )
+#         else:
+#             st.info("No branch data")
+# else:
+#     # Fallback to simple metrics if plotly not available
+#     col1, col2, col3 = st.columns(3)
+#     with col1:
+#         if top5_files_total > 0:
+#             st.metric("Top 5 Files", f"{top5_files_percent:.1f}%", f"{int(top5_files_current):,}/{int(top5_files_total):,} changes")
+#         else:
+#             st.info("No file data")
+#     with col2:
+#         if top5_contrib_total > 0:
+#             st.metric("Top 5 Contributors", f"{top5_contrib_percent:.1f}%", f"{int(top5_contrib_current):,}/{int(top5_contrib_total):,} commits")
+#         else:
+#             st.info("No contributor data")
+#     with col3:
+#         if top5_branches_total > 0:
+#             st.metric("Top 5 Branches", f"{top5_branches_percent:.1f}%", f"{int(top5_branches_current):,}/{int(top5_branches_total):,} commits")
+#         else:
+#             st.info("No branch data")
+# 
+# st.markdown("---")
+# 
+# # Top 5 Contributors Table (COMMENTED OUT - MOVED TO DETAILED CONTRIBUTION BREAKDOWN)
+# # st.markdown("### 👥 Top 5 Contributors")
+# # if not contrib_df.empty:
+# #     top_5_contributors = contrib_df.head(5).copy()
+# #     top_5_contributors['Rank'] = range(1, len(top_5_contributors) + 1)
+# #     top_5_contributors_display = top_5_contributors[['Rank', 'Contributor', 'Commits']].copy()
+# #     top_5_contributors_display.columns = ['Rank', 'Contributor', 'Commits']
+# #     top_5_contributors_display['Commits'] = top_5_contributors_display['Commits'].apply(lambda x: f"{x:,}")
+# #     st.dataframe(
+# #         top_5_contributors_display,
+# #         use_container_width=True,
+# #         hide_index=True,
+# #         column_config={
+# #             "Rank": st.column_config.NumberColumn("Rank", width="small"),
+# #             "Contributor": st.column_config.TextColumn("Contributor", width="large"),
+# #             "Commits": st.column_config.TextColumn("Commits", width="medium")
+# #         }
+# #     )
+# # else:
+# #     st.info("No contributor data available.")
+# 
+# # Top Active Branches Table (COMMENTED OUT - MOVED TO DETAILED CONTRIBUTION BREAKDOWN)
+# # st.markdown("### 🌿 Top 5 Active Branches")
+# # if not branch_df.empty:
+# #     top_5_branches = branch_df.head(5).copy()
+# #     top_5_branches['Rank'] = range(1, len(top_5_branches) + 1)
+# #     top_5_branches_display = top_5_branches[['Rank', 'Branch', 'Commits', 'Updated Files']].copy()
+# #     top_5_branches_display.columns = ['Rank', 'Branch', 'Commits', 'Files Updated']
+# #     top_5_branches_display['Commits'] = top_5_branches_display['Commits'].apply(lambda x: f"{x:,}")
+# #     top_5_branches_display['Files Updated'] = top_5_branches_display['Files Updated'].apply(lambda x: f"{x:,}")
+# #     st.dataframe(
+# #         top_5_branches_display,
+# #         use_container_width=True,
+# #         hide_index=True,
+# #         column_config={
+# #             "Rank": st.column_config.NumberColumn("Rank", width="small"),
+# #             "Branch": st.column_config.TextColumn("Branch", width="large"),
+# #             "Commits": st.column_config.TextColumn("Commits", width="medium"),
+# #             "Files Updated": st.column_config.TextColumn("Files Updated", width="medium")
+# #         }
+# #     )
+# # else:
+# #     st.info("No branch data available.")
+# 
+# # Top Moving Parts and Updates Table (COMMENTED OUT - MOVED TO DETAILED CONTRIBUTION BREAKDOWN)
+# # st.markdown("### 🔥 Top Moving Parts & Updates")
+# # if not file_df.empty:
+# #     top_5_files = file_df.head(5).copy()
+# #     top_5_files['Rank'] = range(1, len(top_5_files) + 1)
+# #     
+# #     # Merge with AI insights if available
+# #     if not insights_df.empty:
+# #         top_5_files_display = top_5_files[['Rank', 'File', 'Changes']].copy()
+# #         top_5_files_display['Changes'] = top_5_files_display['Changes'].apply(lambda x: f"{x:,}")
+# #         
+# #         # Add AI insights columns
+# #         issues_list = []
+# #         recommendations_list = []
+# #         for idx, row in top_5_files.iterrows():
+# #             file_path = row['File']
+# #             file_insights = insights_df[insights_df['File'] == file_path]
+# #             if not file_insights.empty:
+# #                 insight = file_insights.iloc[0]
+# #                 issues_list.append(insight.get('Issues', 'No issues detected'))
+# #                 recommendations_list.append(insight.get('Suggested Action', 'No specific action'))
+# #             else:
+# #                 issues_list.append('No analysis available')
+# #                 recommendations_list.append('No recommendation')
+# #         
+# #         top_5_files_display['Issues'] = issues_list
+# #         top_5_files_display['Recommendation'] = recommendations_list
+# #         top_5_files_display.columns = ['Rank', 'File', 'Changes', 'Issues', 'Recommendation']
+# #     else:
+# #         top_5_files_display = top_5_files[['Rank', 'File', 'Changes']].copy()
+# #         top_5_files_display['Changes'] = top_5_files_display['Changes'].apply(lambda x: f"{x:,}")
+# #         top_5_files_display.columns = ['Rank', 'File', 'Changes']
+# #     
+# #     # Build column config dynamically
+# #     column_config = {
+# #         "Rank": st.column_config.NumberColumn("Rank", width="small"),
+# #         "File": st.column_config.TextColumn("File", width="large"),
+# #         "Changes": st.column_config.TextColumn("Changes", width="medium")
+# #     }
+# #     if 'Issues' in top_5_files_display.columns:
+# #         column_config["Issues"] = st.column_config.TextColumn("Issues", width="large")
+# #     if 'Recommendation' in top_5_files_display.columns:
+# #         column_config["Recommendation"] = st.column_config.TextColumn("Recommendation", width="large")
+# #     
+# #     st.dataframe(
+# #         top_5_files_display,
+# #         use_container_width=True,
+# #         hide_index=True,
+# #         column_config=column_config
+# #     )
+# # else:
+# #     st.info("No file change data available.")
+
+# Recommended Actions Table
+st.markdown("### ✅ Recommended Actions")
+recommended_actions_rows = []
+
+# Actions from AI analysis
+try:
+    has_insights = not insights_df.empty
+except (NameError, AttributeError):
+    has_insights = False
+
+if has_insights:
+    for idx, row in insights_df.head(10).iterrows():
+        file_path = row.get('File', 'Unknown')
+        suggestion = row.get('Suggested Action', 'No specific action')
+        changes = row.get('Changes', 0)
+        recommended_actions_rows.append({
+            'Priority': 'High' if changes > 100 else 'Medium' if changes > 50 else 'Low',
+            'File': file_path,
+            'Changes': changes,
+            'Action': suggestion
+        })
+
+# Additional system-level actions
 stale = branch_df[branch_df["Commits"] == 0]
 if not stale.empty:
-    insights.append("⚠️ Some branches have **zero commits** — likely stale.")
+    recommended_actions_rows.append({
+        'Priority': 'Medium',
+        'File': 'System',
+        'Changes': len(stale),
+        'Action': f'Review stale branches: {len(stale)} branch(es) with zero commits — consider cleanup.'
+    })
 
-# Overactive developer
-top_dev = contrib_df.iloc[0]
-insights.append(f"⭐ **Top contributor** this cycle: **{top_dev['Contributor']}** with {top_dev['Commits']} commits.")
-
-# Most volatile file
-volatile = file_df.iloc[0]
-insights.append(f"🔥 Most frequently modified file: **{volatile['File']}** ({volatile['Changes']} changes).")
-
-# Few PRs recently
 if len(pr_df) < 3:
-    insights.append("📉 Low PR activity — development pace might be slowing.")
+    recommended_actions_rows.append({
+        'Priority': 'Medium',
+        'File': 'System',
+        'Changes': len(pr_df),
+        'Action': 'Low PR activity detected — development pace might be slowing. Consider reviewing blockers.'
+    })
 
-for i in insights:
-    st.markdown(f"- {i}")
+if not contrib_df.empty:
+    top_dev = contrib_df.iloc[0]
+    recommended_actions_rows.append({
+        'Priority': 'Low',
+        'File': 'System',
+        'Changes': top_dev['Commits'],
+        'Action': f"Recognize top contributor: {top_dev['Contributor']} with {top_dev['Commits']} commits this cycle."
+    })
+
+if not file_df.empty:
+    volatile = file_df.iloc[0]
+    recommended_actions_rows.append({
+        'Priority': 'High',
+        'File': volatile['File'],
+        'Changes': volatile['Changes'],
+        'Action': f"Review high-churn file: {volatile['File']} has {volatile['Changes']} changes — consider refactoring or stabilization."
+    })
+
+# Display as table
+if recommended_actions_rows:
+    actions_df = pd.DataFrame(recommended_actions_rows)
+    # Convert Priority to numeric for proper sorting (High=3, Medium=2, Low=1)
+    priority_map = {'High': 3, 'Medium': 2, 'Low': 1}
+    actions_df['_priority_sort'] = actions_df['Priority'].map(priority_map)
+    # Store original Changes as numeric for sorting
+    actions_df['_changes_numeric'] = pd.to_numeric(actions_df['Changes'], errors='coerce')
+    actions_df = actions_df.sort_values(['_priority_sort', '_changes_numeric'], ascending=[False, False])
+    actions_df = actions_df.drop(columns=['_priority_sort', '_changes_numeric'])
+    # Format Changes for display
+    actions_df['Changes'] = actions_df['Changes'].apply(lambda x: f"{int(x):,}" if isinstance(x, (int, float)) and not pd.isna(x) else str(x))
+    
+    st.dataframe(
+        actions_df,
+        use_container_width=True,
+        hide_index=True,
+        column_config={
+            "Priority": st.column_config.TextColumn("Priority", width="small"),
+            "File": st.column_config.TextColumn("File", width="medium"),
+            "Changes": st.column_config.TextColumn("Changes", width="small"),
+            "Action": st.column_config.TextColumn("Action", width="large")
+        }
+    )
+else:
+    st.info("No specific actions recommended at this time.")
 
 st.success("Dashboard loaded successfully.")

@@ -1,5 +1,5 @@
 {
-  "scan_date": "2025-11-25T00:06:58.435375",
+  "scan_date": "2025-11-25T03:15:06.691859",
   "repository_path": "/root/genestack",
   "components": [
     {
@@ -601,5 +601,54 @@
     "2025.1": 8,
     "2024.1": 16
   },
-  "scraped_release_data": {}
+  "scraped_release_data": {
+    "2025.1": {
+      "name": "Epoxy",
+      "status": "current",
+      "url": "https://releases.openstack.org/2025.1/",
+      "scraped": false
+    },
+    "2024.2": {
+      "name": "Dalmatian",
+      "status": "current",
+      "url": "https://releases.openstack.org/2024.2/",
+      "scraped": false
+    },
+    "2024.1": {
+      "name": "Caracal",
+      "status": "current",
+      "url": "https://releases.openstack.org/2024.1/",
+      "scraped": false
+    },
+    "2023.2": {
+      "name": "Bobcat",
+      "status": "maintained",
+      "url": "https://releases.openstack.org/2023.2/",
+      "scraped": false
+    },
+    "2023.1": {
+      "name": "Antelope",
+      "status": "maintained",
+      "url": "https://releases.openstack.org/2023.1/",
+      "scraped": false
+    },
+    "2022.0": {
+      "name": "Zed",
+      "status": "maintained",
+      "url": "https://releases.openstack.org/2022.0/",
+      "scraped": false
+    },
+    "2021.0": {
+      "name": "Yoga",
+      "status": "EOL",
+      "url": "https://releases.openstack.org/2021.0/",
+      "scraped": false
+    },
+    "2020.0": {
+      "name": "Wallaby",
+      "status": "EOL",
+      "url": "https://releases.openstack.org/2020.0/",
+      "scraped": false
+    }
+  }
 }
