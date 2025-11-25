@@ -80,7 +80,8 @@ GITHUB_GREEN_PALETTE = ["#ebedf0", "#c6e48b", "#7bc96f", "#239a3b", "#196127"]
 # Streamlit Page Config
 # ---------------------------------------------------
 st.set_page_config(
-    page_title="Git-Dash-IntAIL",
+    # page_title="Git-Dash-IntAIL",
+    page_title="Genestack-dash-INTAIL",
     layout="wide",
     page_icon="🧬"
 )
