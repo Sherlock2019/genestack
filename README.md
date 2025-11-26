@@ -81,11 +81,11 @@ automatic insights into the Genestack platform.
 <!-- INTELLIGENCE_DASHBOARD_START -->
 <p align="center">
   <strong>Dashboard Overview & KPI Snapshot</strong><br>
-  <img src="docs/assets/intel_dashboard_preview.png?ts=20251125T071634Z" alt="Genestack Intelligence Dashboard Overview" width="100%">
+  <img src="docs/assets/intel_dashboard_preview.png?ts=20251126T013153Z" alt="Genestack Intelligence Dashboard Overview" width="100%">
 </p>
 <p align="center">
   <strong>Top 10 Modified Files per Branch</strong><br>
-  <img src="docs/assets/intel_dashboard_top_files.png?ts=20251125T071634Z" alt="Top 10 Modified Files per Branch" width="100%">
+  <img src="docs/assets/intel_dashboard_top_files.png?ts=20251126T013153Z" alt="Top 10 Modified Files per Branch" width="100%">
 </p>
 <!-- INTELLIGENCE_DASHBOARD_END -->
 
