@@ -1,0 +1,49 @@
+# Genestack Intelligence Dashboard - systemd Service File
+# 
+# Installation:
+# 1. Edit this file and replace <USERNAME> and <PATH_TO_GENESTACK>
+# 2. Copy to systemd directory:
+#    sudo cp genestack-dashboard.service.example /etc/systemd/system/genestack-dashboard.service
+# 3. Enable and start:
+#    sudo systemctl daemon-reload
+#    sudo systemctl enable genestack-dashboard
+#    sudo systemctl start genestack-dashboard
+#
+# Management:
+#    sudo systemctl status genestack-dashboard
+#    sudo systemctl restart genestack-dashboard
+#    sudo systemctl stop genestack-dashboard
+#    sudo journalctl -u genestack-dashboard -f
+
+[Unit]
+Description=Genestack Intelligence Dashboard
+Documentation=https://github.com/rackerlabs/genestack
+After=network.target
+
+[Service]
+Type=simple
+User=<USERNAME>
+Group=<USERNAME>
+WorkingDirectory=<PATH_TO_GENESTACK>
+ExecStart=<PATH_TO_GENESTACK>/start.sh
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+# Environment variables (optional)
+# Environment="GENESTACK_PORT=8600"
+# Environment="GENESTACK_ADDRESS=0.0.0.0"
+# Environment="GENESTACK_SCREENSHOTS=false"
+# Environment="SLACK_WEBHOOK_URL=https://hooks.slack.com/services/YOUR/WEBHOOK"
+# Environment="TEAMS_WEBHOOK_URL=https://outlook.office.com/webhook/YOUR/WEBHOOK"
+
+# Security hardening (optional)
+# PrivateTmp=true
+# NoNewPrivileges=true
+# ProtectSystem=strict
+# ProtectHome=read-only
+# ReadWritePaths=<PATH_TO_GENESTACK>/reports <PATH_TO_GENESTACK>/docs/assets
+
+[Install]
+WantedBy=multi-user.target

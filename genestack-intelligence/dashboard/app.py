@@ -442,20 +442,47 @@ with col_theme:
 # ---------------------------------------------------
 # Load latest report directory
 # ---------------------------------------------------
-reports = sorted(glob.glob("reports/*"), reverse=True)
-if not reports:
-    st.warning("No intelligence reports available. Run ./start.sh first.")
-    st.stop()
+repo_path = st.session_state.get('current_repo_path', os.getcwd())
+reports_pattern = os.path.join(repo_path, "reports", "*")
+reports = sorted(glob.glob(reports_pattern), reverse=True)
 
-latest = reports[0]
-st.markdown(f"### 📅 Latest Report: **{os.path.basename(latest)}**")
+if reports:
+    latest = reports[0]
+    st.markdown(f"### 📅 Latest Report: **{os.path.basename(latest)}**")
+else:
+    st.info("ℹ️ No pre-generated reports found. Analyzing repository in real-time...")
+
+# ---------------------------------------------------
+# Repository Manager
+# ---------------------------------------------------
+try:
+    from repo_manager import get_repo_path, cleanup_repos
+    REPO_MANAGER_AVAILABLE = True
+except ImportError:
+    REPO_MANAGER_AVAILABLE = False
+    def get_repo_path(repo_url=None):
+        return os.getcwd()
+    def cleanup_repos():
+        pass
+
+# Initialize repo path in session state
+if 'current_repo_path' not in st.session_state:
+    st.session_state['current_repo_path'] = os.getcwd()
 
 # ---------------------------------------------------
 # Utility: Run Git Command
 # ---------------------------------------------------
-def git(cmd):
+def git(cmd, repo_path=None):
+    """Run git command in specified repo path"""
+    if repo_path is None:
+        repo_path = st.session_state.get('current_repo_path', os.getcwd())
     try:
-        return subprocess.check_output(cmd, shell=True, text=True).strip()
+        return subprocess.check_output(
+            cmd, 
+            shell=True, 
+            text=True, 
+            cwd=repo_path
+        ).strip()
     except:
         return ""
 
@@ -492,7 +519,7 @@ with col1:
         key="repo_url_input"
     )
 with col2:
-    if st.button("🔍 Use This Repo", type="primary"):
+    if st.button("🔍 Analyze This Repo", type="primary"):
         if user_repo_url:
             # Clean up the URL
             cleaned_url = user_repo_url.strip()
@@ -503,8 +530,14 @@ with col2:
             if cleaned_url.endswith(".git"):
                 cleaned_url = cleaned_url[:-4]
             
+            # Get the repo path (will clone if needed)
+            repo_path = get_repo_path(cleaned_url)
+            
+            # Update session state
             st.session_state['git_repo_url'] = cleaned_url
-            st.success(f"✅ Repository set to: {cleaned_url}")
+            st.session_state['current_repo_path'] = repo_path
+            
+            st.success(f"✅ Now analyzing: {cleaned_url}")
             st.rerun()
 
 # Display current repository URL
@@ -513,7 +546,8 @@ if current_repo_url:
     st.markdown(f"**📦 Currently Analyzing:** [{current_repo_url}]({current_repo_url})")
 
 # Display README
-readme_path = Path("README.md")
+repo_path = st.session_state.get('current_repo_path', os.getcwd())
+readme_path = Path(repo_path) / "README.md"
 if readme_path.exists():
     try:
         with open(readme_path, 'r', encoding='utf-8') as f:

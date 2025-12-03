@@ -1,0 +1,12 @@
+{
+  "recommended_release": "2024.1",
+  "recommended_release_name": "Caracal",
+  "release_distribution": {
+    "2024.2": 15,
+    "2025.1": 8,
+    "2024.1": 16
+  },
+  "components_count": 42,
+  "issues_found": 42,
+  "recommendation": "Mixed releases detected: Dalmatian, Epoxy, Caracal. Recommend unifying all components to Caracal (2024.1) for compatibility. See https://releases.openstack.org/2024.1/"
+}

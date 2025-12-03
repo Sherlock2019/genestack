@@ -1,0 +1,174 @@
+Component,Type,Version in Repo,OpenStack Software Version,Latest Upstream Version,OpenStack Release Name,Compatibility,Recommended Upstream,Source Path,Notes,Comments,OpenStack Version (Numeric)
+kube-prometheus-stack (image),container-image,v0.26.0,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-prometheus-stack/kube-prometheus-stack-helm-overrides.yaml,Image tag from Helm values,,Unknown
+kube-prometheus-stack (image),container-image,v0.34.0,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-prometheus-stack/kube-prometheus-stack-helm-overrides.yaml,Image tag from Helm values,,Unknown
+kube-prometheus-stack (image),container-image,v2.49.1,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-prometheus-stack/kube-prometheus-stack-helm-overrides.yaml,Image tag from Helm values,,Unknown
+kube-prometheus-stack (image),container-image,v0.34.0,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-prometheus-stack/kube-prometheus-stack-helm-overrides.yaml,Image tag from Helm values,,Unknown
+memcached (image),container-image,1.6.39-debian-12-r1,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/memcached/memcached-helm-overrides.yaml,Image tag from Helm values,,Unknown
+memcached (image),container-image,12-debian-12-r34,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/memcached/memcached-helm-overrides.yaml,Image tag from Helm values,,Unknown
+memcached (image),container-image,0.15.0-debian-12-r3,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/memcached/memcached-helm-overrides.yaml,Image tag from Helm values,,Unknown
+kube-ovn (image),container-image,v1.14.10,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-ovn/kube-ovn-helm-overrides.yaml,Image tag from Helm values,,Unknown
+redis-sentinel (image),container-image,v8.2.2,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/redis-sentinel/redis-sentinel-helm-overrides.yaml,Image tag from Helm values,,Unknown
+redis-sentinel (image),container-image,v1.44.0,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/redis-sentinel/redis-sentinel-helm-overrides.yaml,Image tag from Helm values,,Unknown
+grafana (image),container-image,10.3.3,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/grafana/grafana-helm-overrides.yaml,Image tag from Helm values,,Unknown
+postgres-operator (image),container-image,v1.12.2,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/postgres-operator/postgres-operator-helm-overrides.yaml,Image tag from Helm values,,Unknown
+openstack-api-exporter-chart,helm-chart,0.1.0,Unknown,,Unknown,Unknown,Unknown,base-helm-configs/openstack-api-exporter-chart/Chart.yaml,appVersion: 1.0,,Unknown
+ubuntu,container-base-image,22.04,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,Containerfiles/GnocchiRXT-Containerfile,Base image: ubuntu,,Unknown
+ubuntu,container-base-image,22.04,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,Containerfiles/CeilometerRXT-Containerfile,Base image: ubuntu,,Unknown
+cinder,container-base-image,$VERSION,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,Containerfiles/Cinder-volume-netapp-Containerfile,Base image: openstackhelm/cinder,,Unknown
+barbican,openstack-service,2024.2.208+13651f45-628a320c,dalmatian v2.208,,Dalmatian,OK,dalmatian v2.208,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+blazar,openstack-service,2025.1.3+95bf0bf6e,epoxy v1.3,,Epoxy,❌ Mismatch,dalmatian v2.208,helm-chart-versions.yaml,OpenStack Helm chart version,,2025.1
+ceilometer,openstack-service,2024.2.115+13651f45-628a320c,dalmatian v2.115,,Dalmatian,OK,dalmatian v2.115,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+cinder,openstack-service,2024.2.409+13651f45-628a320c,dalmatian v2.409,,Dalmatian,OK,dalmatian v2.409,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+cloudkitty,openstack-service,2025.1.2+ebb1488dc,epoxy v1.2,,Epoxy,❌ Mismatch,dalmatian v2.208,helm-chart-versions.yaml,OpenStack Helm chart version,,2025.1
+freezer,openstack-service,2025.1.2+cdd5c6c55,epoxy v1.2,,Epoxy,❌ Mismatch,dalmatian v2.208,helm-chart-versions.yaml,OpenStack Helm chart version,,2025.1
+glance,openstack-service,2024.2.396+13651f45-628a320c,dalmatian v2.396,,Dalmatian,OK,dalmatian v2.396,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+gnocchi,openstack-service,2024.2.52+22.15d38,dalmatian v2.52,,Dalmatian,OK,dalmatian v2.52,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+heat,openstack-service,2024.2.294+13651f45-628a320c,dalmatian v2.294,,Dalmatian,OK,dalmatian v2.294,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+horizon,openstack-service,2024.2.264+13651f45-628a320c,dalmatian v2.264,,Dalmatian,OK,dalmatian v2.264,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+ironic,openstack-service,2024.2.121+13651f45-628a320c,dalmatian v2.121,,Dalmatian,OK,dalmatian v2.121,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+keystone,openstack-service,2024.2.386+13651f45-628a320c,dalmatian v2.386,,Dalmatian,OK,dalmatian v2.386,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+magnum,openstack-service,2024.2.157+13651f45-628a320c,dalmatian v2.157,,Dalmatian,OK,dalmatian v2.157,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+masakari,openstack-service,2024.2.17+13651f45-628a320c,dalmatian v2.17,,Dalmatian,OK,dalmatian v2.17,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+neutron,openstack-service,2024.2.529+13651f45-628a320c,dalmatian v2.529,,Dalmatian,OK,dalmatian v2.529,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+nova,openstack-service,2024.2.555+13651f45-628a320c,dalmatian v2.555,,Dalmatian,OK,dalmatian v2.555,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+octavia,openstack-service,2025.1.15+b1e463122,epoxy v1.15,,Epoxy,❌ Mismatch,dalmatian v2.208,helm-chart-versions.yaml,OpenStack Helm chart version,,2025.1
+placement,openstack-service,2024.2.62+13651f45-628a320c,dalmatian v2.62,,Dalmatian,OK,dalmatian v2.62,helm-chart-versions.yaml,OpenStack Helm chart version,,2024.2
+zaqar,openstack-service,2025.2.0+2d37d445c,Unknown,,Unknown,Unknown,Unknown,helm-chart-versions.yaml,OpenStack Helm chart version,,Unknown
+masakari (image),openstack-service-image,ghcr.io/rackerlabs/genestack-images/masakari:2024.1-latest,Unknown,N/A,Unknown,Unknown,Unknown,base-helm-configs/masakari/masakari-helm-overrides.yaml,OpenStack masakari container image tag,,Unknown
+cloudkitty (image),openstack-service-image,ghcr.io/rackerlabs/genestack-images/cloudkitty:2024.1-latest,Unknown,N/A,Unknown,Unknown,Unknown,base-helm-configs/cloudkitty/cloudkitty-helm-overrides.yaml,OpenStack cloudkitty container image tag,,Unknown
+rabbitmq.com,kubernetes-api,rabbitmq.com/v1beta1,Unknown,v1.30+ (check K8s docs),Unknown,Unknown,Unknown,manifests/,Kubernetes API version used in manifests,,Unknown
+storage.k8s.io,kubernetes-api,storage.k8s.io/v1,Unknown,v1.30+ (check K8s docs),Unknown,Unknown,Unknown,manifests/,Kubernetes API version used in manifests,,Unknown
+v1,kubernetes-api,v1,Unknown,v1.30+ (check K8s docs),Unknown,Unknown,Unknown,manifests/,Kubernetes API version used in manifests,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+ceph.rook.io,operator-crd,v1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1,,Unknown
+objectbucket.io,operator-crd,v1alpha1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1alpha1,,Unknown
+objectbucket.io,operator-crd,v1alpha1,Unknown,N/A,Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,CRD version: v1alpha1,,Unknown
+ansible,python-package,"9.0,<10.0",Unknown,13.0.0,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+ansible-core,python-package,2.17.0,Unknown,2.20.0,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+cryptography,python-package,43.0.1,Unknown,46.0.3,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+jinja2,python-package,3.1.5,Unknown,3.1.6,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+jmespath,python-package,1.0.1,Unknown,1.0.1,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+jsonschema,python-package,4.23.0,Unknown,4.25.1,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+MarkupSafe,python-package,2.1.3,Unknown,3.0.3,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+netaddr,python-package,0.9.0,Unknown,1.3.0,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+pbr,python-package,5.11.1,Unknown,7.0.3,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+kubernetes,python-package,24.2.0,Unknown,34.1.0,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+openstacksdk,python-package,1.0.0,Unknown,4.8.0,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+python-openstackclient,python-package,7.4.0,Unknown,8.2.0,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+dictdiffer,python-package,0.9.0,Unknown,0.9.0,Unknown,Unknown,Unknown,requirements.txt,,,Unknown
+ansible-compat,python-package,4.1.11,Unknown,25.12.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+ansible-lint,python-package,24.2.0,Unknown,25.12.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+attrs,python-package,23.2.0,Unknown,25.4.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+black,python-package,24.3.0,Unknown,25.11.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+bracex,python-package,2.4,Unknown,2.6,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+click,python-package,8.1.7,Unknown,8.3.1,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+filelock,python-package,3.13.1,Unknown,3.20.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+jsonschema,python-package,4.21.1,Unknown,4.25.1,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+jsonschema-specifications,python-package,2023.12.1,antelope v1,2025.9.1,Antelope,❌ Mismatch,dalmatian v2.208,dev-requirements.txt,,,2023.1
+markdown-it-py,python-package,3.0.0,Unknown,4.0.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+mdurl,python-package,0.1.2,Unknown,0.1.2,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+mypy-extensions,python-package,1.0.0,Unknown,1.1.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+pathspec,python-package,0.12.1,Unknown,0.12.1,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+platformdirs,python-package,4.2.0,Unknown,4.5.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+pygments,python-package,2.17.2,Unknown,2.19.2,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+referencing,python-package,0.33.0,Unknown,0.37.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+reno,python-package,4.0.0,Unknown,4.1.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+rich,python-package,13.7.0,Unknown,14.2.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+rpds-py,python-package,0.17.1,Unknown,0.30.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+subprocess-tee,python-package,0.4.1,Unknown,0.4.2,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+tomli,python-package,2.0.1,Unknown,2.3.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+typing-extensions,python-package,4.9.0,Unknown,4.15.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+wcmatch,python-package,8.5,Unknown,10.1,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+yamllint,python-package,1.35.1,Unknown,1.37.1,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+pre_commit,python-package,4.1.0,Unknown,4.5.0,Unknown,Unknown,Unknown,dev-requirements.txt,,,Unknown
+octavia_preconf.amphora_image_version,ansible-role-var,focal,Unknown,N/A,Unknown,Unknown,Unknown,ansible/roles/octavia_preconf/defaults/main.yml,Ansible role variable,,Unknown
+actions/checkout,github-action,v3,Unknown,N/A,Unknown,Unknown,Unknown,.github/workflows/genestack-intel.yml,GitHub Action,,Unknown
+actions/setup-python,github-action,v4,Unknown,N/A,Unknown,Unknown,Unknown,.github/workflows/genestack-intel.yml,GitHub Action,,Unknown
+python-version,ci-cd-tool,3.x,Unknown,N/A,Unknown,Unknown,Unknown,.github/workflows/genestack-intel.yml,CI/CD tool version,,Unknown
+actions/checkout,github-action,v3,Unknown,N/A,Unknown,Unknown,Unknown,.github/workflows/genestack-intel-suite.yml,GitHub Action,,Unknown
+actions/setup-python,github-action,v4,Unknown,N/A,Unknown,Unknown,Unknown,.github/workflows/genestack-intel-suite.yml,GitHub Action,,Unknown
+python-version,ci-cd-tool,3.x,Unknown,N/A,Unknown,Unknown,Unknown,.github/workflows/genestack-intel-suite.yml,CI/CD tool version,,Unknown
+mariadb,generic-image,11.4.3,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/mariadb-cluster/base/mariadb-replication.yaml,Image: docker-registry1.mariadb.com/library/mariadb,,Unknown
+kubernetes-entrypoint,generic-image,"latest""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/ovn/base/ovn-setup.yaml,"Image: ""ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint",,Unknown
+k8s,generic-image,1.26.11,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/ovn/base/ovn-setup.yaml,Image: alpine/k8s,,Unknown
+ovs,generic-image,"v3.5.1-latest""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/ovn/base/ovn-setup.yaml,"Image: ""ghcr.io/rackerlabs/genestack-images/ovs",,Unknown
+k8s,generic-image,1.26.11,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/ovn/base/ovn-setup.yaml,Image: alpine/k8s,,Unknown
+description,generic-image, Image,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,Image: description,,Unknown
+description,generic-image, Image,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,Image: description,,Unknown
+type,generic-image, string,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,Image: type,,Unknown
+description,generic-image, Image,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,Image: description,,Unknown
+description,generic-image, Image,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/crds.yaml,Image: description,,Unknown
+ceph,generic-image,master,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-operator/base/operator.yaml,Image: rook/ceph,,Unknown
+pullPolicy,generic-image, IfNotPresent,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/vault-secrets-operator/base/values.yaml,Image: pullPolicy,,Unknown
+pullPolicy,generic-image, IfNotPresent,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/vault-secrets-operator/base/values.yaml,Image: pullPolicy,,Unknown
+mariadb,generic-image,11.4.3,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/grafana/base/grafana-database.yaml,Image: docker-registry1.mariadb.com/library/mariadb,,Unknown
+repository,generic-image," ""hashicorp/vault-k8s""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/vault/base/values.yaml,Image: repository,,Unknown
+repository,generic-image," ""hashicorp/vault""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/vault/base/values.yaml,Image: repository,,Unknown
+repository,generic-image," ""hashicorp/vault-csi-provider""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/vault/base/values.yaml,Image: repository,,Unknown
+repository,generic-image," ""hashicorp/vault""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/vault/base/values.yaml,Image: repository,,Unknown
+ceph,generic-image,v18.2.1,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-cluster-external-pvc/base/toolbox.yaml,Image: quay.io/ceph/ceph,,Unknown
+ceph,generic-image,v18.2.2,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-cluster-external-pvc/base/cluster-on-pvc.yaml,Image: quay.io/ceph/ceph,,Unknown
+kube-ovn,generic-image,v1.13.13,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/ovn-backup/base/ovn-backup.yaml,Image: docker.io/kubeovn/kube-ovn,,Unknown
+etcd-backup,generic-image,v0.0.5,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/backups/base/etcd/etcd-backup.yaml,Image: csengteam/etcd-backup,,Unknown
+etcd-backup,generic-image,v0.0.5,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/backups/base/etcd/etcd-backup.yaml,Image: csengteam/etcd-backup,,Unknown
+kubernetes-entrypoint,generic-image,"latest""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/skyline/base/deployment-apiserver.yaml,"Image: ""ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint",,Unknown
+heat,generic-image,"2024.1-latest""",caracal v1,N/A (requires registry access),Caracal,❌ Mismatch,dalmatian v2.208,base-kustomize/skyline/base/deployment-apiserver.yaml,"Image: ""ghcr.io/rackerlabs/genestack-images/heat",,2024.1
+yq,generic-image,"latest""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/skyline/base/deployment-apiserver.yaml,"Image: ""ghcr.io/linuxserver/yq",,Unknown
+skyline,generic-image,"2024.2-latest""",dalmatian v2,N/A (requires registry access),Dalmatian,OK,dalmatian v2,base-kustomize/skyline/base/deployment-apiserver.yaml,"Image: ""ghcr.io/rackerlabs/genestack-images/skyline",,2024.2
+skyline,generic-image,"2024.2-latest""",dalmatian v2,N/A (requires registry access),Dalmatian,OK,dalmatian v2,base-kustomize/skyline/base/deployment-apiserver.yaml,"Image: ""ghcr.io/rackerlabs/genestack-images/skyline",,2024.2
+ceph,generic-image,v18.2.1,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-cluster/base/toolbox.yaml,Image: quay.io/ceph/ceph,,Unknown
+ceph,generic-image,v18.2.2,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-kustomize/rook-cluster/base/rook-cluster.yaml,Image: quay.io/ceph/ceph,,Unknown
+jessie-dnsutils,generic-image,1.3,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,manifests/utils/utils-dnsutils.yaml,Image: registry.k8s.io/e2e-test-images/jessie-dnsutils,,Unknown
+openstack-client,generic-image,latest,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,manifests/utils/utils-openstack-client-admin.yaml,Image: ghcr.io/rackerlabs/genestack-images/openstack-client,,Unknown
+k8s,generic-image,1.26.11,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,manifests/utils/utils-kubectl.yaml,Image: alpine/k8s,,Unknown
+{get_param,generic-image, image_name,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,testing/build.yaml,Image: {get_param,,Unknown
+{get_param,generic-image, image_name,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,testing/build.yaml,Image: {get_param,,Unknown
+{get_param,generic-image, image_name,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,testing/build.yaml,Image: {get_param,,Unknown
+type,generic-image, string,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,testing/single.yaml,Image: type,,Unknown
+{ get_param,generic-image, image,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,testing/single.yaml,Image: { get_param,,Unknown
+tag,generic-image, v0.26.0,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-prometheus-stack/kube-prometheus-stack-helm-overrides.yaml,Image: tag,,Unknown
+tag,generic-image, v2.49.1,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-prometheus-stack/kube-prometheus-stack-helm-overrides.yaml,Image: tag,,Unknown
+tag,generic-image, v0.34.0,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-prometheus-stack/kube-prometheus-stack-helm-overrides.yaml,Image: tag,,Unknown
+repository,generic-image, quay.io/prometheus/pushgateway,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/prometheus-pushgateway/values.yaml,Image: repository,,Unknown
+oauth-proxy,generic-image,v1.1.0,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/prometheus-pushgateway/values.yaml,Image: openshift/oauth-proxy,,Unknown
+## @param image.registry [default,generic-image, REGISTRY_NAME],Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/prometheus-kube-event-exporter/values.yaml,Image: ## @param image.registry [default,,Unknown
+enabled,generic-image, true,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/ironic/ironic-helm-overrides.yaml,Image: enabled,,Unknown
+registry,generic-image, docker.io,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/memcached/memcached-helm-overrides.yaml,Image: registry,,Unknown
+registry,generic-image, docker.io,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/memcached/memcached-helm-overrides.yaml,Image: registry,,Unknown
+registry,generic-image, docker.io,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/memcached/memcached-helm-overrides.yaml,Image: registry,,Unknown
+registry,generic-image, quay.io,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/prometheus-mysql-exporter/values.yaml,Image: registry,,Unknown
+repo,generic-image," ""gcr.io/cloud-sql-connectors/cloud-sql-proxy""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/prometheus-mysql-exporter/values.yaml,Image: repo,,Unknown
+pullPolicy,generic-image, IfNotPresent,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/kube-ovn/kube-ovn-helm-overrides.yaml,Image: pullPolicy,,Unknown
+repository,generic-image, ghcr.io/openstack-exporter/openstack-exporter,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/monitoring/openstack-metrics-exporter/openstack-metrics-exporter-helm-overrides.yaml,Image: repository,,Unknown
+tag,generic-image," ""10.3.3""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/grafana/grafana-helm-overrides.yaml,Image: tag,,Unknown
+registry,generic-image, quay.io,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/prometheus-postgres-exporter/values.yaml,Image: registry,,Unknown
+repository,generic-image, ghcr.io/mariadb-operator/mariadb-operator,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/mariadb-operator/mariadb-operator-helm-overrides.yaml,Image: repository,,Unknown
+repository,generic-image, ghcr.io/mariadb-operator/mariadb-operator,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/mariadb-operator/mariadb-operator-helm-overrides.yaml,Image: repository,,Unknown
+repository,generic-image, ghcr.io/mariadb-operator/mariadb-operator,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/mariadb-operator/mariadb-operator-helm-overrides.yaml,Image: repository,,Unknown
+registry,generic-image, ghcr.io,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/postgres-operator/postgres-operator-helm-overrides.yaml,Image: registry,,Unknown
+spilo-16,generic-image,3.2-p3,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/postgres-operator/postgres-operator-helm-overrides.yaml,Image: ghcr.io/zalando/spilo-16,,Unknown
+logical-backup,generic-image,"v1.12.2""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/postgres-operator/postgres-operator-helm-overrides.yaml,"Image: ""ghcr.io/zalando/postgres-operator/logical-backup",,Unknown
+pgbouncer,generic-image,"master-32""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/postgres-operator/postgres-operator-helm-overrides.yaml,"Image: ""registry.opensource.zalan.do/acid/pgbouncer",,Unknown
+spilo-16,generic-image,3.2-p3,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/postgres-operator/postgres-operator-helm-overrides.yaml,Image: ghcr.io/zalando/spilo-16,,Unknown
+logical-backup,generic-image,"v1.12.2""",Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/postgres-operator/postgres-operator-helm-overrides.yaml,"Image: ""ghcr.io/zalando/postgres-operator/logical-backup",,Unknown
+repository,generic-image, ghcr.io/rackerlabs/genestack-images/openstack-exporter,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/openstack-api-exporter-chart/values.yaml,Image: repository,,Unknown
+"""{{ .Values.image.repository }}",generic-image,{{,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,base-helm-configs/openstack-api-exporter-chart/templates/all.yaml,"Image: ""{{ .Values.image.repository }}",,Unknown
+type,generic-image, string,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,genestack-intelligence/.venv/lib/python3.10/site-packages/openstack/tests/functional/orchestration/v1/hello_world.yaml,Image: type,,Unknown
+{ get_param,generic-image, image,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,genestack-intelligence/.venv/lib/python3.10/site-packages/openstack/tests/functional/orchestration/v1/hello_world.yaml,Image: { get_param,,Unknown
+type,generic-image, string,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,genestack-intelligence/.venv/lib/python3.10/site-packages/openstack/tests/unit/orchestration/v1/hello_world.yaml,Image: type,,Unknown
+{ get_param,generic-image, image,Unknown,N/A (requires registry access),Unknown,Unknown,Unknown,genestack-intelligence/.venv/lib/python3.10/site-packages/openstack/tests/unit/orchestration/v1/hello_world.yaml,Image: { get_param,,Unknown

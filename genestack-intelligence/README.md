@@ -1,219 +1,251 @@
-# 🧬 Genestack Intelligence Dashboard  
-**Repository: rackerlabs/genestack**  
-**Purpose: Provide DevOps, SRE, Engineering Leads with real-time analytics and drift intelligence**  
+# 🧬 Genestack Intelligence Suite
 
----
+A comprehensive dashboard and analytics suite for monitoring **ANY Git repository** - analyze contributors, track drift, and visualize repository health.
 
-## 🚀 Overview  
-The **Genestack Intelligence Dashboard** transforms your Git repository into a fully visual intelligence platform.  
-It consolidates:
+## 🎯 NEW: Universal Repository Scanner
 
-- Code activity  
-- Contributors & ownership  
-- Branch health  
-- File volatility  
-- Heatmaps  
-- Pull Request velocity  
-- Kubernetes drift analysis (auto-skip mode)  
-- Slack/Teams notifications  
-- AI-generated risk & health insights  
+**Analyze ANY Git repository in seconds!** Just enter a URL and get instant insights:
+- `https://github.com/kubernetes/kubernetes`
+- `https://github.com/facebook/react`
+- `https://github.com/openstack/nova`
+- Or any public/private repo you have access to!
 
-Everything is continuously generated **locally** or by **GitHub Actions**.
+## ✨ Features
 
----
+- **🔗 Universal Repo Scanner** - Analyze ANY Git repository by URL
+- **📊 Interactive Dashboard** - Real-time visualization of contributors and metrics
+- **🏆 Top Contributors** - Gold, Silver, Bronze medals with detailed breakdowns
+- **🔍 Drift Detection** - Automatically detect configuration drift
+- **🗺️ Contributor Heatmap** - Visualize code contribution patterns
+- **📈 Repository Health Metrics** - Track activity and health gauges
+- **📁 File Change Tracking** - Most modified files with risk analysis
+- **🌿 Branch Analysis** - Commit counts, updated files, recent changes
+- **🔔 Notifications** - Slack and Microsoft Teams integration
+- **📸 Automated Screenshots** - Capture dashboard previews automatically
 
-# 🎯 Goals  
-The dashboard exists to:
+## 🚀 Quick Start
 
-### ✔ Give developers & owners **fast visibility** into repository health  
-### ✔ Detect infrastructure drift or configuration inconsistencies  
-### ✔ Surface hidden risks (stale branches, volatile files, low PR velocity)  
-### ✔ Help engineering leaders make **data-driven decisions**  
-### ✔ Automate insights for Slack / Teams / weekly reporting
-
----
-
-# 📁 Directory Structure
-
-genestack-intelligence/
-├── drift/ # Helm/K8s drift detection (auto-skip if no cluster)
-├── heatmap/ # Contributor activity heatmap generator
-├── dashboard/ # Streamlit UI app
-├── notify/ # Slack + Teams notifications
-└── .venv/ # Virtual environment
-
-reports/
-└── YYYY-MM-DD/ # Auto-generated insights per day
-
-Accessible at:
-
-- http://localhost:8600  
-- http://203.60.1.117:8600  
-
----
-
-# 🧬 Key Features
-
----
-
-## 1️⃣ **Drift Detection Engine**  
-Detects:
-
-- Helm manifest drift  
-- Kustomize overlay mismatches  
-- Live cluster vs. source-of-truth differences  
-
-If no Kubernetes cluster is present →  
-✔ Auto-Skips cleanly  
-✔ Still generates the report layout
-
-Reports stored in:
-
-reports/YYYY-MM-DD/drift-report.md
-
-yaml
-Copy code
-
----
-
-## 2️⃣ **Contributor Intelligence**  
-Includes:
-
-### ✔ Pie Chart (Top Contributors)  
-Shows contribution distribution for the top 10 contributors.
-
-### ✔ Full-Width Heatmap  
-Contributor vs week activity  
-- Green = high activity  
-- Blue = low  
-- Highlights productivity & ownership patterns  
-
-### ✔ Top 10 Most Active Contributors  
-Automatically extracted with Git commands.
-
----
-
-## 3️⃣ **Branch Intelligence**  
-### ✔ Top 10 Most Active Branches  
-With commit counts.  
-Quickly reveals:
-
-- Hot zones  
-- Feature groups  
-- Stale or abandoned branches  
-- Rework areas  
-
----
-
-## 4️⃣ **File Volatility Tracking**  
-Shows:  
-- Top 10 most modified files  
-- Areas with bug-risk  
-- Refactor candidates  
-- Highly unstable modules  
-
----
-
-## 5️⃣ **Pull Request Intelligence**  
-### ✔ Last 10 PRs (merged)  
-Each with:
-
-| Commit | Title | Author | Date |
-|--------|--------|--------|------|
-
-Highlights:  
-- PR velocity  
-- Team synergy  
-- Reviewer load  
-- Changes merging across branches  
-
----
-
-## 6️⃣ **AI-Generated Insights Panel**  
-Automatically analyzes all metrics and creates recommendations.
-
-Examples:
-
-- ⚠️ “Some branches have zero commits — likely stale.”  
-- 🔥 “Most volatile file: X with N changes.”  
-- ⭐ “Top contributor: John Doe — 42 commits this cycle.”  
-- 📉 “Low PR activity, development pace might be slowing.”  
-- 📈 “High contributor activity — healthy repository.”  
-
-The AI model is rules-based for now; can be upgraded to ML on request.
-
----
-
-## 7️⃣ **Notifications**  
-Dashboards support:
-
-### ✔ Slack Incoming Webhooks  
-### ✔ Microsoft Teams Message Cards
-
-Set once:
+### 1. Setup (First Time Only)
 
 ```bash
-export SLACK_WEBHOOK_URL="https://hooks.slack.com/…. "
-export TEAMS_WEBHOOK_URL="https://outlook.office.com/webhook/…"
-On every dashboard run or GitHub Action:
-→ Slack & Teams receive an update payload
+cd genestack-intelligence
+./setup.sh
+```
 
-🔧 Installation Requirements
-Local setup:
+This creates a virtual environment and installs all dependencies.
 
-nginx
-Copy code
-sudo apt install python3 python3-venv python3-pip graphviz git -y
-start.sh auto-installs:
+### 2. Start the Dashboard
 
-pandas
+```bash
+cd ..
+./start.sh
+```
 
-matplotlib
+The dashboard will be available at `http://localhost:8600`
 
-seaborn
+### 3. Analyze Any Repository
 
-tabulate
+1. Open the dashboard in your browser
+2. At the top, enter any Git repository URL:
+   ```
+   https://github.com/kubernetes/kubernetes
+   ```
+3. Click **"🔍 Analyze This Repo"**
+4. Wait for the repo to clone (10-60 seconds)
+5. See instant insights! 🎉
 
-streamlit
+**That's it!** No configuration needed. Works with any public or private Git repository.
 
-🖥 Dashboard Components
-🥧 Pie Chart — Contributor Distribution
-Shows who owns most of the repo activity.
+## 📚 Documentation
 
-🔥 Heatmap — Contributor Activity Over Time
-Easy detection of productivity trends
-(or talent bottlenecks).
+- **[Deployment Guide](DEPLOYMENT.md)** - Complete deployment instructions for any server
+- **[Configuration Guide](DEPLOYMENT.md#configuration)** - Customize settings
+- **[Troubleshooting](DEPLOYMENT.md#troubleshooting)** - Common issues and solutions
 
-🌿 Top Branches
-Quick status of active workstreams.
+## 🔧 Configuration
 
-🗂 Volatile Files
-High-risk assets visible instantly.
+Edit `config.sh` to customize:
 
-🔄 Latest Pull Requests
-Highlights team collaboration speed.
+```bash
+# Change port
+PORT=9000
 
-🔮 AI Insights
-Surfaces risks + recommendations.
+# Disable screenshots
+ENABLE_SCREENSHOTS="false"
 
-🧭 Example Use Cases
-Engineering Manager reviewing weekly repository health
+# Enable notifications
+ENABLE_SLACK="true"
+ENABLE_TEAMS="true"
+```
 
-SRE validating stability before big deployments
+Or use environment variables:
 
-Platform team validating drift before/after changes
+```bash
+export GENESTACK_PORT=9000
+./start.sh
+```
 
-Architects detecting long-term hotspots
+## 📦 Components
 
-Contributors wanting visibility into overall activity
+### Dashboard (`dashboard/`)
+- `app.py` - Main Streamlit dashboard application
+- `repo_health_metrics.py` - Repository health calculations
+- `bmw_repo_health_gauges.py` - Health gauge visualizations
+- `capture_dashboard.py` - Screenshot capture utility
+- `theme_manager.py` - Theme management
 
-🚀 Where to Go Next
-This dashboard can be extended with:
+### Drift Detection (`drift/`)
+- `detect_drift.py` - Configuration drift detection
 
-🔥 1. PR reviewer bottleneck detection
-🔥 2. Commit trend forecasting (AI model)
-🔥 3. ML-based risk scoring for commits
-🔥 4. HTML/PDF weekly emailed reports
-🔥 5. Integration with GitHub API for richer PR metadata
-🔥 6. Directory-level change heatmaps
-🔥 7. Genestack-specific module trends (frontend, charts, policies)
+### Heatmap (`heatmap/`)
+- `contributor_heatmap.py` - Contributor activity heatmap generation
+
+### Notifications (`notify/`)
+- `slack_notify.py` - Slack notification integration
+- `teams_notify.py` - Microsoft Teams notification integration
+
+### Version Management
+- `version_inventory.py` - OpenStack version inventory
+- `openstack_version_resolver.py` - Version resolution logic
+- `openstack_github_version_resolver.py` - GitHub-based version resolution
+- `openstack_compatibility.py` - Compatibility analysis
+- `openstack_repo_scanner.py` - Repository scanning
+
+## 🌐 Server Deployment
+
+The suite is fully server-agnostic and can be deployed anywhere:
+
+### Manual Background Mode
+
+```bash
+nohup ./start.sh > dashboard.log 2>&1 &
+```
+
+### systemd Service (Recommended)
+
+See [DEPLOYMENT.md](DEPLOYMENT.md#using-systemd-recommended-for-production) for complete instructions.
+
+### Docker (Coming Soon)
+
+```bash
+docker-compose up -d
+```
+
+## 🔐 Security
+
+For production deployments:
+
+1. **Use a reverse proxy** (nginx/Apache) with SSL
+2. **Configure firewall** to restrict access
+3. **Enable authentication** via reverse proxy
+4. **Use VPN or SSH tunneling** for remote access
+
+See [Production Deployment](DEPLOYMENT.md#production-deployment) for details.
+
+## 🐛 Troubleshooting
+
+### Virtual Environment Not Found
+
+```bash
+cd genestack-intelligence
+./setup.sh
+```
+
+### Port Already in Use
+
+Change port in `config.sh` or:
+
+```bash
+export GENESTACK_PORT=8601
+./start.sh
+```
+
+### More Issues?
+
+See the [Troubleshooting Guide](DEPLOYMENT.md#troubleshooting)
+
+## 📊 Dashboard Access
+
+Once running, access the dashboard at:
+
+- **Localhost:** `http://localhost:8600`
+- **Network:** `http://<server-ip>:8600`
+- **Hostname:** `http://<hostname>:8600`
+
+All available URLs are displayed when starting the dashboard.
+
+## 🔔 Notifications Setup
+
+### Slack
+
+1. Create a Slack webhook URL
+2. Set environment variable:
+   ```bash
+   export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+   ```
+3. Enable in `config.sh`:
+   ```bash
+   ENABLE_SLACK="true"
+   ```
+
+### Microsoft Teams
+
+1. Create a Teams webhook URL
+2. Set environment variable:
+   ```bash
+   export TEAMS_WEBHOOK_URL="https://outlook.office.com/webhook/YOUR/WEBHOOK/URL"
+   ```
+3. Enable in `config.sh`:
+   ```bash
+   ENABLE_TEAMS="true"
+   ```
+
+## 📝 Requirements
+
+- Python 3.8+
+- Git
+- Network access for external connections
+- Chromium (optional, for screenshots - installed automatically)
+
+## 🛠️ Development
+
+### Install in Development Mode
+
+```bash
+cd genestack-intelligence
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+```
+
+### Run Components Individually
+
+```bash
+# Drift detection
+python3 drift/detect_drift.py
+
+# Heatmap generation
+python3 heatmap/contributor_heatmap.py
+
+# Dashboard only
+streamlit run dashboard/app.py --server.port=8600
+```
+
+## 📄 License
+
+See main repository LICENSE file.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow the main repository's contribution guidelines.
+
+## 📞 Support
+
+For issues or questions:
+1. Check [DEPLOYMENT.md](DEPLOYMENT.md)
+2. Review logs
+3. Open an issue in the repository
+
+---
+
+**Made with ❤️ for the Genestack community**
