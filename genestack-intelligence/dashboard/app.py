@@ -1223,7 +1223,7 @@ if VERSION_INVENTORY_AVAILABLE:
     if st.session_state.get('run_scan', False):
         with st.spinner("Scanning repository... This may take a few minutes."):
             try:
-                repo_path = os.getcwd()
+                repo_path = st.session_state.get('current_repo_path', os.getcwd())
                 scanner = VersionInventory(repo_path=repo_path)
                 inventory = scanner.scan_all()
                 
@@ -1430,7 +1430,7 @@ if REPO_SCANNER_AVAILABLE:
     if st.session_state.get('run_repo_scan', False):
         with st.spinner("Scanning repository and analyzing compatibility... This may take a few minutes."):
             try:
-                repo_path = os.getcwd()
+                repo_path = st.session_state.get('current_repo_path', os.getcwd())
                 scanner = OpenStackRepoScanner(repo_path=repo_path)
                 
                 # Scrape if requested
